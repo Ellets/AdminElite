@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Admin Mobile</title>
+    <title>Elite Admin v3.0</title>
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
@@ -16,88 +16,71 @@
             --gold-glow: #f9e29c;
             --bg-deep: #0b1118;
             --text-white: #f4f4f4;
-            --status-good: #2ecc71;
         }
 
         body {
             font-family: 'Cairo', sans-serif;
-            background-color: var(--bg-deep);
-            background-image: radial-gradient(circle at center, #162436 0%, #0b1118 100%);
+            background: var(--bg-deep);
             margin: 0; padding: 10px; color: var(--text-white);
-            min-height: 100vh;
-            font-size: 14px; /* حجم خط أساسي أصغر */
+            font-size: 13px;
         }
 
         .container { max-width: 100%; margin: 0 auto; }
 
-        /* تبويبات أصغر للهواتف */
+        /* التبويبات - Tab Bar */
         .tab-menu {
             display: flex; gap: 5px; margin-bottom: 15px;
-            background: var(--diesel-light); padding: 5px;
-            border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.1);
+            background: var(--diesel-light); padding: 5px; border-radius: 12px;
         }
 
         .tab-btn {
-            flex: 1; padding: 10px 5px; border: none; border-radius: 8px;
+            flex: 1; padding: 8px 2px; border: none; border-radius: 8px;
             background: transparent; color: var(--text-white);
-            font-family: 'Cairo'; font-weight: 600; cursor: pointer;
-            font-size: 0.85rem; transition: 0.3s;
-            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            font-family: 'Cairo'; font-weight: 600; font-size: 0.8rem;
+            display: flex; flex-direction: column; align-items: center; gap: 3px;
         }
 
-        .tab-btn i { font-size: 1rem; }
         .tab-btn.active { background: var(--gold-primary); color: var(--diesel-blue); }
 
-        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content { display: none; animation: fadeIn 0.3s; }
         .tab-content.active { display: block; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* بطاقات مضغوطة */
+        /* البطاقات */
         .admin-card {
             background: var(--diesel-light); padding: 15px;
             border-radius: 16px; border: 1px solid rgba(212, 175, 55, 0.15);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
             position: relative;
         }
 
-        h2 { font-size: 1.1rem; margin: 0 0 15px 0; font-weight: 700; }
-
-        /* زر التعديل بشكل أيقونة فقط للهاتف */
         .sheet-edit-btn {
             position: absolute; top: 15px; left: 15px;
-            background: rgba(212, 175, 55, 0.1);
-            color: var(--gold-primary); border: 1px solid var(--gold-primary);
-            padding: 5px 10px; border-radius: 8px; font-size: 0.75rem;
-            text-decoration: none;
+            color: var(--gold-primary); font-size: 1.1rem;
         }
 
-        /* حقول إدخال أنحف */
-        .input-group { margin-bottom: 12px; }
-        .input-group label { display: block; margin-bottom: 5px; color: var(--gold-glow); font-size: 0.8rem; }
+        /* الحقول */
+        .input-group { margin-bottom: 10px; }
         input, select {
             width: 100%; padding: 10px; border-radius: 8px;
             border: 1px solid rgba(255,255,255,0.1);
-            background: var(--diesel-blue); color: white; font-size: 0.9rem;
-            box-sizing: border-box;
+            background: var(--diesel-blue); color: white; box-sizing: border-box;
+            font-size: 0.85rem;
         }
 
         .submit-btn {
-            width: 100%; background: var(--gold-primary);
-            color: var(--diesel-blue); border: none; padding: 12px;
-            border-radius: 10px; font-weight: 700; font-size: 1rem; margin-top: 10px;
+            width: 100%; background: var(--gold-primary); color: var(--diesel-blue);
+            border: none; padding: 12px; border-radius: 10px; font-weight: 700;
         }
 
-        /* جداول مريحة للعين على الموبايل */
-        .table-responsive { overflow-x: auto; margin-top: 10px; }
-        table { width: 100%; border-collapse: collapse; min-width: 400px; }
-        th { font-size: 0.75rem; color: var(--gold-primary); padding: 10px; text-align: right; border-bottom: 1px solid rgba(212, 175, 55, 0.2); }
-        td { padding: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.85rem; }
+        /* الجداول بدون سحب - No Horizontal Scroll */
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        th { font-size: 0.7rem; color: var(--gold-primary); padding: 8px 4px; text-align: right; border-bottom: 1px solid rgba(212, 175, 55, 0.2); }
+        td { padding: 8px 4px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; }
 
-        .p-img-mini { width: 40px; height: 40px; border-radius: 6px; }
-        .badge { font-size: 0.7rem; padding: 2px 6px; border-radius: 5px; background: rgba(212, 175, 55, 0.1); color: var(--gold-glow); }
-        .contact-link { font-size: 1.1rem; color: var(--gold-primary); margin-left: 10px; }
-        .items-list-text { font-size: 0.75rem; color: #a0aec0; line-height: 1.3; }
+        .p-img-mini { width: 35px; height: 35px; border-radius: 5px; object-fit: cover; }
+        .badge { font-size: 0.65rem; padding: 2px 5px; border-radius: 4px; background: rgba(212, 175, 55, 0.1); color: var(--gold-glow); }
+        .contact-link { font-size: 1.2rem; color: var(--gold-primary); }
     </style>
 </head>
 <body>
@@ -112,65 +95,67 @@
 
     <div id="add-tab" class="tab-content active">
         <div class="admin-card">
-            <h2>إضافة منتج</h2>
+            <h2 style="font-size: 1rem; margin-top: 0;">إضافة منتج جديد</h2>
             <form id="adminApiForm">
                 <div class="input-group">
                     <input type="text" id="p_name" placeholder="اسم المنتج" required>
                 </div>
-                <div style="display:flex; gap:8px">
+                <div style="display:flex; gap:5px" class="input-group">
                     <input type="number" id="p_price" placeholder="السعر" required>
                     <input type="number" id="p_qty" placeholder="الكمية" required>
                 </div>
-                <div class="input-group" style="margin-top:10px">
-                    <select id="p_type_select">
-                        <option value="">-- التصنيف --</option>
+                
+                <div class="input-group">
+                    <select id="p_type_select" onchange="toggleNewType(this.value)">
+                        <option value="">-- اختر التصنيف --</option>
+                        <option value="NEW_TYPE" style="color: var(--gold-primary);">+ إضافة تصنيف جديد</option>
                     </select>
                 </div>
-                <div class="input-group">
-                    <input type="url" id="p_img" placeholder="رابط الصورة (Drive/Web)">
+                <div id="new_type_container" class="input-group" style="display:none;">
+                    <input type="text" id="p_new_type" placeholder="اكتب اسم التصنيف الجديد">
                 </div>
-                <button type="submit" id="submitBtn" class="submit-btn">حفظ البيانات</button>
+
+                <div class="input-group">
+                    <input type="url" id="p_img" placeholder="رابط الصورة">
+                </div>
+                <button type="submit" id="submitBtn" class="submit-btn">حفظ المنتج</button>
             </form>
-            <div id="msg" style="text-align:center; margin-top:10px; font-size: 0.8rem;"></div>
+            <div id="msg" style="text-align:center; margin-top:10px;"></div>
         </div>
     </div>
 
     <div id="inventory-tab" class="tab-content">
         <div class="admin-card">
-            <a id="edit-inventory-link" href="#" target="_blank" class="sheet-edit-btn"><i class="fas fa-external-link-alt"></i></a>
-            <h2>المخزن</h2>
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>صورة</th>
-                            <th>الاسم</th>
-                            <th>السعر</th>
-                            <th>مخزون</th>
-                        </tr>
-                    </thead>
-                    <tbody id="inventory-body"></tbody>
-                </table>
-            </div>
+            <a id="edit-inventory-link" href="#" target="_blank" class="sheet-edit-btn"><i class="fas fa-edit"></i></a>
+            <h2 style="font-size: 1rem; margin-top: 0;">قائمة المخزن</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 40px;">صورة</th>
+                        <th>المنتج</th>
+                        <th style="width: 50px;">السعر</th>
+                        <th style="width: 40px;">عدد</th>
+                    </tr>
+                </thead>
+                <tbody id="inventory-body"></tbody>
+            </table>
         </div>
     </div>
 
     <div id="orders-tab" class="tab-content">
         <div class="admin-card">
-            <a id="edit-orders-link" href="#" target="_blank" class="sheet-edit-btn"><i class="fas fa-external-link-alt"></i></a>
-            <h2>الطلبات</h2>
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>الزبون</th>
-                            <th>الطلب</th>
-                            <th>تواصل</th>
-                        </tr>
-                    </thead>
-                    <tbody id="orders-body"></tbody>
-                </table>
-            </div>
+            <a id="edit-orders-link" href="#" target="_blank" class="sheet-edit-btn"><i class="fas fa-edit"></i></a>
+            <h2 style="font-size: 1rem; margin-top: 0;">آخر الطلبات</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>الزبون</th>
+                        <th>الطلبات</th>
+                        <th style="width: 40px;">تواصل</th>
+                    </tr>
+                </thead>
+                <tbody id="orders-body"></tbody>
+            </table>
         </div>
     </div>
 
@@ -184,8 +169,12 @@
     document.getElementById('edit-inventory-link').href = `https://docs.google.com/spreadsheets/d/${inventorySheetID}/edit`;
     document.getElementById('edit-orders-link').href = `https://docs.google.com/spreadsheets/d/${ordersSheetID}/edit`;
 
+    function toggleNewType(val) {
+        document.getElementById('new_type_container').style.display = (val === 'NEW_TYPE') ? 'block' : 'none';
+    }
+
     function formatDriveUrl(url) {
-        if (!url) return 'https://via.placeholder.com/40';
+        if (!url) return 'https://via.placeholder.com/35';
         if (url.includes('drive.google.com')) {
             const fileId = url.match(/[-\w]{25,}/);
             if (fileId) return `https://lh3.googleusercontent.com/d/${fileId[0]}`;
@@ -213,7 +202,7 @@
             const rows = json.table.rows;
             const categories = [...new Set(rows.map(r => r.c[4]?.v).filter(v => v && v !== "Type"))];
             const select = document.getElementById('p_type_select');
-            select.innerHTML = '<option value="">-- التصنيف --</option>';
+            select.innerHTML = '<option value="">-- اختر التصنيف --</option><option value="NEW_TYPE">+ إضافة تصنيف جديد</option>';
             categories.forEach(cat => {
                 const option = document.createElement('option');
                 option.value = cat; option.innerText = cat;
@@ -228,20 +217,19 @@
             const res = await fetch(fetchURL);
             const text = await res.text();
             const json = JSON.parse(text.substring(text.indexOf("(") + 1, text.lastIndexOf(")")));
-            const rows = json.table.rows;
             const tbody = document.getElementById('inventory-body');
             tbody.innerHTML = '';
-            for (let i = 1; i < rows.length; i++) {
-                const data = rows[i].c;
+            json.table.rows.slice(1).forEach(row => {
+                const data = row.c;
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><img src="${formatDriveUrl(data[5]?.v)}" class="p-img-mini" onerror="this.src='https://via.placeholder.com/40'"></td>
-                    <td><strong>${data[1]?.v || '-'}</strong><br><span class="badge">${data[4]?.v || 'عام'}</span></td>
+                    <td><img src="${formatDriveUrl(data[5]?.v)}" class="p-img-mini"></td>
+                    <td><span style="font-weight:600">${data[1]?.v || '-'}</span><br><span class="badge">${data[4]?.v || 'عام'}</span></td>
                     <td>${data[2]?.v}</td>
-                    <td><span class="badge">${data[3]?.v}</span></td>
+                    <td>${data[3]?.v}</td>
                 `;
                 tbody.appendChild(tr);
-            }
+            });
         } catch (e) {}
     }
 
@@ -251,15 +239,14 @@
             const res = await fetch(fetchURL);
             const text = await res.text();
             const json = JSON.parse(text.substring(text.indexOf("(") + 1, text.lastIndexOf(")")));
-            const rows = json.table.rows;
             const tbody = document.getElementById('orders-body');
             tbody.innerHTML = '';
-            rows.reverse().forEach(row => {
+            json.table.rows.reverse().slice(0,15).forEach(row => {
                 const data = row.c;
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><strong>${data[2]?.v || 'زبون'}</strong><br><small>${data[3]?.v || '-'}</small></td>
-                    <td class="items-list-text">${data[6]?.v || '-'} <br> <b style="color:var(--gold-primary)">${data[7]?.v}</b></td>
+                    <td><b>${data[2]?.v || 'زبون'}</b><br><small>${data[3]?.v || '-'}</small></td>
+                    <td style="font-size:0.7rem; color:#ccc">${data[6]?.v || '-'} <br><b style="color:var(--gold-primary)">${data[7]?.v}</b></td>
                     <td><a href="tel:${data[4]?.v}" class="contact-link"><i class="fas fa-phone-alt"></i></a></td>
                 `;
                 tbody.appendChild(tr);
@@ -273,25 +260,28 @@
         const msg = document.getElementById('msg');
         btn.disabled = true; msg.innerText = "جاري الحفظ...";
 
+        let finalType = document.getElementById('p_type_select').value;
+        if(finalType === 'NEW_TYPE') finalType = document.getElementById('p_new_type').value;
+
         const formData = new URLSearchParams();
         formData.append("entry.1904055406", document.getElementById('p_name').value);
         formData.append("entry.372117537",  document.getElementById('p_price').value);
         formData.append("entry.663866375",  document.getElementById('p_qty').value);
-        formData.append("entry.307919813",  document.getElementById('p_type_select').value);
+        formData.append("entry.307919813",  finalType);
         formData.append("entry.174446568",  document.getElementById('p_img').value);
 
         try {
             await fetch(formURL, { method: "POST", mode: "no-cors", body: formData });
-            msg.style.color = "var(--status-good)";
-            msg.innerText = "تم الحفظ بنجاح! ✓";
+            msg.style.color = "var(--gold-primary)";
+            msg.innerText = "تم الحفظ! ✓";
             document.getElementById('adminApiForm').reset();
             loadCategories();
-        } catch (error) { msg.innerText = "حدث خطأ"; }
+            document.getElementById('new_type_container').style.display = 'none';
+        } catch (error) { msg.innerText = "خطأ في الاتصال"; }
         finally { btn.disabled = false; }
     });
 
     loadCategories();
 </script>
-
 </body>
 </html>
