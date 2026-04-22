@@ -1,9 +1,10 @@
 :root {
-    --primary: #251b23; /* الخلفية الداكنة الأساسية */
-    --accent: #db5b34;  /* البرتقالي الخاص بالنخبة */
+    /* تم تغيير الألوان لتطابق تطبيق الإدارة */
+    --primary: #251b23; 
+    --accent: #db5b34;  
     --accent-light: #ff7a4d;
-    --crystal: #3d2b3a; /* لون الكريستال الفاتح للبطاقات */
-    --bg-deep: #1a1218; /* العمق الداكن */
+    --crystal: #3d2b3a; 
+    --bg-deep: #1a1218; 
     --text-white: #ffffff;
     --status-good: #27ae60;
     --status-low: #f1c40f;
@@ -13,6 +14,7 @@
 body {
     font-family: 'Cairo', sans-serif;
     background-color: var(--bg-deep);
+    /* تحديث التدرج ليكون كريستالي داكن */
     background-image: radial-gradient(circle at center, #2d1f2a 0%, #1a1218 100%);
     margin: 0;
     padding-bottom: 120px;
