@@ -1,258 +1,501 @@
 :root {
-    /* العودة للألوان البترولية والذهبية */
-    --primary: #3C6C81;        /* الأزرق البترولي */
-    --accent: #D4AF37;         /* الذهبي الملكي */
-    --accent-light: #FFD700;    /* ذهبي مشرق */
-    --crystal: #4a829a;        /* لون بترولي فاتح للكريستال */
-    --bg-deep: #234352;        /* الخلفية العميقة */
+
+    --primary: #251b23; /* الخلفية الداكنة الأساسية */
+
+    --accent: #db5b34;  /* البرتقالي الخاص بالنخبة */
+
+    --accent-light: #ff7a4d;
+
+    --crystal: #3d2b3a; /* لون الكريستال الفاتح للبطاقات */
+
+    --bg-deep: #1a1218; /* العمق الداكن */
+
     --text-white: #ffffff;
-    --status-good: #2ecc71;
+
+    --status-good: #27ae60;
+
     --status-low: #f1c40f;
+
     --status-out: #e74c3c;
+
 }
+
+
 
 body {
+
     font-family: 'Cairo', sans-serif;
+
     background-color: var(--bg-deep);
-    /* تدرج بترولي فخم */
-    background-image: radial-gradient(circle at center, #3C6C81 0%, #234352 100%);
+
+    background-image: radial-gradient(circle at center, #2d1f2a 0%, #1a1218 100%);
+
     margin: 0;
+
     padding-bottom: 120px;
+
     color: var(--text-white);
+
     min-height: 100vh;
+
 }
+
+
 
 header {
-    background: rgba(60, 108, 129, 0.95);
+
+    background: rgba(37, 27, 35, 0.95);
+
     backdrop-filter: blur(10px);
+
     -webkit-backdrop-filter: blur(10px);
+
     padding: 1rem;
+
     text-align: center;
+
     position: sticky;
+
     top: 0;
+
     z-index: 1200;
+
     border-bottom: 3px solid var(--accent);
+
 }
+
+
 
 .logo {
+
     font-size: 1.4rem;
+
     font-weight: 800;
+
     background: linear-gradient(to left, var(--text-white), var(--accent));
+
     -webkit-background-clip: text;
+
     -webkit-text-fill-color: transparent;
+
     display: block;
+
     margin-bottom: 8px;
+
 }
+
+
 
 .search-container input {
+
     width: 90%;
+
     max-width: 400px;
+
     padding: 10px 20px;
+
     border-radius: 25px;
+
     border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.1);
+
+    background: var(--crystal);
+
     color: white;
+
     outline: none;
+
     transition: 0.3s;
+
 }
+
+
 
 .search-container input:focus {
+
     border-color: var(--accent);
-    box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+
+    box-shadow: 0 0 10px rgba(219, 91, 52, 0.2);
+
 }
+
+
 
 .category-nav {
+
     padding: 15px 10px;
+
     display: flex;
+
     gap: 8px;
+
     overflow-x: auto;
+
     scrollbar-width: none;
+
     background: var(--bg-deep);
+
 }
+
+
 
 .cat-chip {
+
     background: var(--primary);
+
     padding: 6px 18px;
+
     border-radius: 50px;
+
     white-space: nowrap;
+
     cursor: pointer;
+
     border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #d1dee4;
+
+    color: #bfa8bc;
+
     font-size: 0.8rem;
+
     font-weight: 600;
+
 }
+
+
 
 .cat-chip.active {
+
     background: var(--accent);
-    color: #1e3a47;
+
+    color: white;
+
 }
+
+
 
 .grid-container {
+
     display: grid;
+
     grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+
     gap: 12px;
+
     padding: 15px;
+
     max-width: 1200px;
+
     margin: auto;
+
 }
+
+
 
 .product-card {
+
     background: var(--primary);
+
     border-radius: 12px;
+
     padding: 10px;
-    border: 1px solid rgba(212, 175, 55, 0.1);
+
+    border: 1px solid rgba(219, 91, 52, 0.1);
+
     display: flex;
+
     flex-direction: column;
+
     position: relative;
+
     overflow: hidden;
+
 }
+
+
 
 .product-img {
+
     width: 100%;
+
     aspect-ratio: 1/1;
+
     object-fit: cover;
+
     border-radius: 8px;
+
     cursor: zoom-in;
+
     margin-bottom: 8px;
-    background: #1e3a47;
+
+    background: var(--crystal);
+
 }
+
+
 
 .stock-badge {
+
     font-size: 0.65rem;
+
     font-weight: 700;
+
     padding: 2px 6px;
+
     border-radius: 4px;
+
     margin-bottom: 5px;
+
     display: inline-block;
+
 }
-.status-good { background: rgba(46, 204, 113, 0.2); color: var(--status-good); }
+
+.status-good { background: rgba(39, 174, 96, 0.2); color: var(--status-good); }
+
 .status-low { background: rgba(241, 196, 15, 0.2); color: var(--status-low); }
+
 .status-out { background: rgba(231, 76, 60, 0.2); color: var(--status-out); }
 
+
+
 .product-type {
+
     font-size: 0.65rem;
+
     color: var(--accent);
+
     font-weight: 700;
+
     margin-bottom: 2px;
+
     text-transform: uppercase;
+
 }
+
+
 
 .product-title {
+
     font-size: 0.8rem;
+
     font-weight: 600;
+
     height: 34px;
+
     overflow: hidden;
+
     margin-bottom: 5px;
+
 }
+
+
 
 .price-tag {
-    color: var(--accent-light);
+
+    color: var(--accent);
+
     font-weight: 800;
+
     font-size: 0.95rem;
+
     margin-bottom: 8px;
+
 }
 
+
+
 .add-btn {
-    background: var(--accent);
-    color: #1e3a47;
+
+    background: linear-gradient(135deg, var(--accent) 0%, #bc4a2a 100%);
+
+    color: white;
+
     border: none;
+
     padding: 8px;
+
     border-radius: 6px;
+
     font-weight: 700;
+
     cursor: pointer;
+
     transition: 0.3s;
+
 }
+
+
 
 .add-btn:active { transform: scale(0.95); }
 
-/* النوافذ المنبثقة بنفس الستايل البترولي */
+
+
+/* النوافذ المنبثقة بنفس الستايل الداكن */
+
 .modal {
+
     display: none;
+
     position: fixed;
+
     z-index: 9999;
+
     left: 0; top: 0;
+
     width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.9);
+
+    background: rgba(0, 0, 0, 0.85);
+
     backdrop-filter: blur(8px);
+
 }
+
+
 
 .modal-content {
+
     margin: auto;
+
     display: block;
+
     max-width: 90%;
+
     max-height: 80vh;
+
     position: relative;
+
     top: 50%;
+
     transform: translateY(-50%);
+
     border: 2px solid var(--accent);
+
     border-radius: 10px;
+
 }
+
+
 
 .modal-content-form {
+
     background: var(--primary);
+
     color: white;
+
     padding: 25px;
+
     border-radius: 20px;
+
     width: 85%;
+
     max-width: 400px;
+
     margin: 15% auto;
+
     position: relative;
-    border: 1px solid rgba(212, 175, 55, 0.3);
+
+    border: 1px solid rgba(219, 91, 52, 0.3);
+
     box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+
 }
+
+
 
 .form-input {
+
     width: 100%;
+
     padding: 12px;
+
     margin: 8px 0;
+
     border-radius: 10px;
+
     border: 1px solid rgba(255,255,255,0.1);
-    background: rgba(255,255,255,0.05);
+
+    background: var(--crystal);
+
     color: white;
+
     box-sizing: border-box;
+
 }
+
+
 
 .submit-order-btn {
-    background: var(--accent);
-    color: #1e3a47;
+
     width: 100%;
+
+    background: linear-gradient(135deg, var(--accent) 0%, #bc4a2a 100%);
+
+    color: white;
+
     border: none;
+
     padding: 12px;
+
     border-radius: 10px;
+
     font-weight: 700;
+
     cursor: pointer;
+
     margin-top: 10px;
+
 }
+
+
 
 .cancel-btn {
+
     width: 100%;
+
     background: none;
+
     border: none;
-    color: #d1dee4;
+
+    color: #bfa8bc;
+
     margin-top: 10px;
+
     cursor: pointer;
+
 }
+
+
 
 .cart-bar {
+
     position: fixed;
+
     bottom: 0; left: 0; right: 0;
-    background: rgba(45, 86, 104, 0.98);
+
+    background: rgba(37, 27, 35, 0.98);
+
     padding: 15px 20px;
+
     display: flex;
+
     justify-content: space-between;
+
     align-items: center;
+
     border-top: 3px solid var(--accent);
+
     z-index: 2000;
+
 }
 
+
+
 .checkout-btn {
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
-    color: #1e3a47;
+
+    background: linear-gradient(135deg, var(--accent) 0%, #bc4a2a 100%);
+
+    color: white;
+
     border: none;
+
     padding: 10px 25px;
+
     border-radius: 50px;
-    font-weight: 800;
-    font-size: 0.9rem;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
-}
