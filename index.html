@@ -30,12 +30,8 @@
             min-height: 100vh;
         }
 
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
+        .container { max-width: 1000px; margin: 0 auto; }
 
-        /* استعادة تنسيق الشعار الأصلي */
         h2 {
             color: var(--text-white);
             font-weight: 800;
@@ -45,9 +41,7 @@
             gap: 12px;
         }
 
-        h2 i {
-            color: var(--gold-primary); /* أيقونة الجوهرة باللون الذهبي */
-        }
+        h2 i { color: var(--gold-primary); }
 
         .admin-card {
             background: var(--diesel-light);
@@ -62,10 +56,8 @@
 
         .glow-effect {
             position: absolute;
-            top: -60px;
-            left: -60px;
-            width: 120px;
-            height: 120px;
+            top: -60px; left: -60px;
+            width: 120px; height: 120px;
             background: var(--gold-primary);
             filter: blur(90px);
             opacity: 0.15;
@@ -142,10 +134,11 @@
             border-bottom: 2px solid rgba(212, 175, 55, 0.2);
         }
 
-        td { padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.03); font-size: 0.85rem; }
+        td { padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.03); font-size: 0.9rem; }
 
         .items-list { color: #a0aec0; max-width: 250px; line-height: 1.5; }
         .order-total { color: var(--gold-glow); font-weight: 800; }
+        .badge-qty { background: rgba(212, 175, 55, 0.1); color: var(--gold-glow); padding: 4px 12px; border-radius: 8px; font-weight: bold; }
         
         .contact-link {
             color: var(--gold-primary);
@@ -164,22 +157,22 @@
     
     <div class="admin-card">
         <div class="glow-effect"></div>
-        <h2><i class="fas fa-gem"></i> إدارة متجر النخبة</h2>
+        <h2><i class="fas fa-plus-circle"></i> إضافة منتج جديد</h2>
         
         <form id="adminApiForm">
             <div class="input-group">
                 <label><i class="fas fa-tag"></i> اسم المنتج</label>
-                <input type="text" id="p_name" placeholder="مثال: شاورما لحم" required>
+                <input type="text" id="p_name" placeholder="مثال: شاي سيلاني" required>
             </div>
 
             <div class="row">
                 <div class="input-group">
                     <label><i class="fas fa-money-bill-wave"></i> السعر (د.ع)</label>
-                    <input type="number" id="p_price" placeholder="12000" required>
+                    <input type="number" id="p_price" placeholder="500" required>
                 </div>
                 <div class="input-group">
-                    <label><i class="fas fa-boxes"></i> الكمية</label>
-                    <input type="number" id="p_qty" placeholder="10" required>
+                    <label><i class="fas fa-boxes"></i> الكمية المتوفرة</label>
+                    <input type="number" id="p_qty" placeholder="50" required>
                 </div>
             </div>
 
@@ -197,20 +190,32 @@
                 <input type="text" id="new-type-input" placeholder="اكتب اسم التصنيف الجديد...">
             </div>
 
-            <div class="input-group">
-                <label><i class="fas fa-image"></i> رابط الصورة</label>
-                <input type="url" id="p_img" placeholder="رابط مباشر للصورة">
-            </div>
-
-            <button type="submit" id="submitBtn" class="submit-btn">حفظ في قاعدة البيانات
+            <button type="submit" id="submitBtn" class="submit-btn">حفظ في قاعدة البيانات</button>
         </form>
         <div id="msg"></div>
     </div>
 
     <div class="admin-card">
-        <h2><i class="fas fa-shopping-basket"></i> طلبات الزبائن الواردة</h2>
+        <h2><i class="fas fa-list-ul"></i> قائمة المنتجات الحالية</h2>
+        <div id="inventory-loader" class="loader-text">جاري التحديث...</div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>المنتج</th>
+                        <th>التصنيف</th>
+                        <th>السعر</th>
+                        <th>المخزون</th>
+                    </tr>
+                </thead>
+                <tbody id="inventory-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="admin-card">
+        <h2><i class="fas fa-shopping-cart"></i> الطلبات الواردة</h2>
         <div id="orders-loader" class="loader-text">جاري التحديث...</div>
-        
         <div class="table-responsive">
             <table>
                 <thead>
@@ -222,8 +227,7 @@
                         <th>تواصل</th>
                     </tr>
                 </thead>
-                <tbody id="orders-body">
-                    </tbody>
+                <tbody id="orders-body"></tbody>
             </table>
         </div>
     </div>
@@ -252,6 +256,36 @@
             });
             document.getElementById('type-loader').innerText = "تم تحديث التصنيفات ✓";
         } catch (e) { document.getElementById('type-loader').innerText = "خطأ في جلب البيانات."; }
+    }
+
+    async function loadInventory() {
+        const fetchURL = `https://docs.google.com/spreadsheets/d/${inventorySheetID}/gviz/tq?tqx=out:json`;
+        try {
+            const res = await fetch(fetchURL);
+            const text = await res.text();
+            const json = JSON.parse(text.substring(text.indexOf("(") + 1, text.lastIndexOf(")")));
+            const rows = json.table.rows;
+            const tbody = document.getElementById('inventory-body');
+            tbody.innerHTML = '';
+
+            for (let i = 1; i < rows.length; i++) {
+                const data = rows[i].c;
+                const name = data[1]?.v || '-';
+                const price = data[2]?.v || '0';
+                const qty = data[3]?.v || '0';
+                const type = data[4]?.v || 'عام';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${name}</strong></td>
+                    <td style="color:var(--gold-primary)">${type}</td>
+                    <td>${Number(price).toLocaleString()} د.ع</td>
+                    <td><span class="badge-qty">${qty}</span></td>
+                `;
+                tbody.appendChild(tr);
+            }
+            document.getElementById('inventory-loader').innerText = "تم تحديث المخزن ✓";
+        } catch (e) { document.getElementById('inventory-loader').innerText = "خطأ في تحميل المنتجات."; }
     }
 
     function toggleNewType() {
@@ -305,14 +339,13 @@
         formData.append("entry.372117537",  document.getElementById('p_price').value);
         formData.append("entry.663866375",  document.getElementById('p_qty').value);
         formData.append("entry.307919813",  finalType);
-        formData.append("entry.174446568",  document.getElementById('p_img').value);
 
         try {
             await fetch(formURL, { method: "POST", mode: "no-cors", body: formData });
             msg.style.color = "var(--status-good)";
             msg.innerText = "تم الحفظ بنجاح! ✓";
             document.getElementById('adminApiForm').reset();
-            loadCategories();
+            setTimeout(() => { loadCategories(); loadInventory(); }, 2000);
         } catch (error) {
             msg.style.color = "var(--status-error)";
             msg.innerText = "حدث خطأ في الإرسال.";
@@ -320,8 +353,9 @@
     });
 
     loadCategories();
+    loadInventory();
     loadOrders();
-    setInterval(loadOrders, 60000);
+    setInterval(() => { loadOrders(); loadInventory(); }, 60000);
 </script>
 
 </body>
