@@ -89,14 +89,14 @@
         td { padding: 10px 4px; border-bottom: 1px solid rgba(255, 255, 255, 0.03); vertical-align: middle; word-wrap: break-word; }
 
         .p-info { display: flex; flex-direction: column; gap: 1px; }
-        .p-name { font-weight: 700; font-size: 0.8rem; }
+        .p-name { font-weight: 700; font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .p-img-mini { width: 40px; height: 40px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(212, 175, 55, 0.2); }
         .badge { background: rgba(212, 175, 55, 0.1); color: var(--gold-glow); padding: 1px 5px; border-radius: 5px; font-size: 0.65rem; width: fit-content; }
         
         .order-total { color: var(--gold-primary); font-weight: 800; font-size: 0.85rem; }
-        .contact-actions { display: flex; gap: 10px; align-items: center; }
-        .contact-link { color: var(--gold-primary); font-size: 1.1rem; text-decoration: none; }
-        .contact-link.mail { color: #a0aec0; font-size: 1rem; }
+        .contact-actions { display: flex; gap: 12px; align-items: center; justify-content: flex-start; }
+        .contact-link { color: var(--gold-primary); font-size: 1.15rem; text-decoration: none; transition: 0.2s; }
+        .contact-link:active { transform: scale(1.2); }
     </style>
 </head>
 <body>
@@ -242,9 +242,9 @@
                     <td><div style="font-size:0.7rem; color:#a0aec0">${data[6]?.v || '-'}</div><div class="order-total">${data[7]?.v} د.ع</div></td>
                     <td>
                         <div class="contact-actions">
-                            <a href="tel:${phone}" class="contact-link"><i class="fas fa-phone-alt"></i></a>
-                            <a href="https://wa.me/${phone.replace(/\s+/g, '')}" class="contact-link"><i class="fab fa-whatsapp"></i></a>
-                            <a href="mailto:${email}" class="contact-link mail"><i class="fas fa-envelope"></i></a>
+                            <a href="tel:${phone}" class="contact-link" title="اتصال"><i class="fas fa-phone-alt"></i></a>
+                            <a href="https://wa.me/${phone.replace(/\s+/g, '')}" class="contact-link" title="واتساب"><i class="fab fa-whatsapp"></i></a>
+                            <a href="mailto:${email}" class="contact-link" title="بريد"><i class="fas fa-envelope"></i></a>
                         </div>
                     </td>
                 </tr>`;
