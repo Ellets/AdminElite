@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Admin | لوحة التحكم</title>
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="admin-style.css">
+</head>
+<body>
+
+<div class="admin-card">
+    <div class="glow-effect"></div>
+    <h2><i class="fas fa-gem"></i> إدارة متجر النخبة</h2>
+    
+    <form id="adminApiForm">
+        <div class="input-group">
+            <label><i class="fas fa-tag"></i> اسم المنتج</label>
+            <input type="text" id="p_name" placeholder="مثال: شاورما لحم" required>
+        </div>
+
+        <div class="row">
+            <div class="input-group">
+                <label><i class="fas fa-money-bill-wave"></i> السعر (د.ع)</label>
+                <input type="number" id="p_price" placeholder="12000" required>
+            </div>
+
+            <div class="input-group">
+                <label><i class="fas fa-boxes"></i> الكمية</label>
+                <input type="number" id="p_qty" placeholder="10" required>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label><i class="fas fa-layer-group"></i> تصنيف المنتج</label>
+            <div id="type-loader" class="loader-text">جاري جلب التصنيفات...</div>
+            <div class="category-container">
+                <select id="p_type_select">
+                    <option value="">-- اختر تصنيفاً --</option>
+                </select>
+                <button type="button" class="add-type-btn" onclick="toggleNewType()">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+            <input type="text" id="new-type-input" placeholder="اكتب اسم التصنيف الجديد...">
+        </div>
+
+        <div class="input-group">
+            <label><i class="fas fa-image"></i> رابط الصورة</label>
+            <input type="url" id="p_img" placeholder="رابط Google Drive">
+        </div>
+
+        <button type="submit" id="submitBtn" class="submit-btn">حفظ في السحابة</button>
+    </form>
+    
+    <div id="msg"></div>
+</div>
+
+<script src="admin-script.js"></script>
+</body>
+</html>
