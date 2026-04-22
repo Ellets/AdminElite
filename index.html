@@ -90,7 +90,7 @@
         }
 
         /* العناصر الخاصة */
-        .p-img-mini { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 1px solid var(--gold-primary); }
+        .p-img-mini { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 1px solid var(--gold-primary); background: #131e2b; }
         .badge { background: rgba(212, 175, 55, 0.1); color: var(--gold-glow); padding: 4px 10px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; }
         .contact-link { color: var(--gold-primary); font-size: 1.3rem; margin-left: 15px; text-decoration: none; }
         .items-list-text { font-size: 0.85rem; color: #a0aec0; max-width: 250px; line-height: 1.4; }
@@ -132,7 +132,7 @@
                 </div>
                 <div class="input-group">
                     <label>رابط الصورة</label>
-                    <input type="url" id="p_img" placeholder="https://image-url.com">
+                    <input type="url" id="p_img" placeholder="ضع رابط الصورة هنا">
                 </div>
                 <button type="submit" id="submitBtn" class="submit-btn">حفظ في البيانات</button>
             </form>
@@ -189,9 +189,20 @@
     const ordersSheetID = '1hCfKFp2-YvEl33FdU7gEJyzxRoSO3l9bPHCDMn58W9o';
     const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSd_m0-myPMPCQzZJNrT8ip4mi-D0oVTh6o_mX2b9NSlz7RIIg/formResponse";
 
-    // تحديث روابط التعديل
     document.getElementById('edit-inventory-link').href = `https://docs.google.com/spreadsheets/d/${inventorySheetID}/edit`;
     document.getElementById('edit-orders-link').href = `https://docs.google.com/spreadsheets/d/${ordersSheetID}/edit`;
+
+    // دالة تحويل روابط جوجل درايف إلى روابط عرض مباشرة
+    function formatDriveUrl(url) {
+        if (!url) return 'https://via.placeholder.com/50';
+        if (url.includes('drive.google.com')) {
+            const fileId = url.match(/[-\w]{25,}/);
+            if (fileId) {
+                return `https://lh3.googleusercontent.com/d/${fileId[0]}`;
+            }
+        }
+        return url;
+    }
 
     function openTab(evt, tabName) {
         let contents = document.getElementsByClassName("tab-content");
@@ -233,9 +244,10 @@
             tbody.innerHTML = '';
             for (let i = 1; i < rows.length; i++) {
                 const data = rows[i].c;
+                const directImg = formatDriveUrl(data[5]?.v);
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><img src="${data[5]?.v || 'https://via.placeholder.com/50'}" class="p-img-mini"></td>
+                    <td><img src="${directImg}" class="p-img-mini" onerror="this.src='https://via.placeholder.com/50'"></td>
                     <td><strong>${data[1]?.v || '-'}</strong></td>
                     <td><span class="badge">${data[4]?.v || 'عام'}</span></td>
                     <td>${data[2]?.v} د.ع</td>
