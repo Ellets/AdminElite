@@ -7,57 +7,322 @@
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="admin-style.css">
+
+    <style>
+        :root {
+            --diesel-blue: #131e2b;
+            --diesel-light: #1e2d3e;
+            --gold-primary: #d4af37;
+            --gold-glow: #f9e29c;
+            --bg-deep: #0b1118;
+            --text-white: #f4f4f4;
+            --status-good: #2ecc71;
+            --status-error: #e74c3c;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-deep);
+            background-image: radial-gradient(circle at center, #162436 0%, #0b1118 100%);
+            margin: 0;
+            padding: 20px;
+            color: var(--text-white);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* استعادة تنسيق الشعار الأصلي */
+        h2 {
+            color: var(--text-white);
+            font-weight: 800;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h2 i {
+            color: var(--gold-primary); /* أيقونة الجوهرة باللون الذهبي */
+        }
+
+        .admin-card {
+            background: var(--diesel-light);
+            padding: 30px;
+            border-radius: 24px;
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+
+        .glow-effect {
+            position: absolute;
+            top: -60px;
+            left: -60px;
+            width: 120px;
+            height: 120px;
+            background: var(--gold-primary);
+            filter: blur(90px);
+            opacity: 0.15;
+        }
+
+        .input-group { margin-bottom: 20px; }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--gold-glow);
+            opacity: 0.8;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
+            background: var(--diesel-blue);
+            color: white;
+            box-sizing: border-box;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input:focus { 
+            border-color: var(--gold-primary); 
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.1);
+        }
+
+        .row { display: flex; gap: 20px; }
+        .row .input-group { flex: 1; }
+
+        .category-container { display: flex; gap: 12px; }
+        
+        .add-type-btn {
+            background: var(--gold-primary);
+            color: var(--diesel-blue);
+            border: none;
+            padding: 0 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #new-type-input { display: none; margin-top: 10px; border-color: var(--gold-primary); }
+
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%);
+            color: var(--diesel-blue);
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: 0.3s;
+        }
+
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(184, 134, 11, 0.4); }
+        .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+
+        th {
+            background: rgba(212, 175, 55, 0.05);
+            color: var(--gold-primary);
+            padding: 15px;
+            text-align: right;
+            border-bottom: 2px solid rgba(212, 175, 55, 0.2);
+        }
+
+        td { padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.03); font-size: 0.85rem; }
+
+        .items-list { color: #a0aec0; max-width: 250px; line-height: 1.5; }
+        .order-total { color: var(--gold-glow); font-weight: 800; }
+        
+        .contact-link {
+            color: var(--gold-primary);
+            text-decoration: none;
+            margin-right: 12px;
+            font-size: 1.2rem;
+        }
+
+        .loader-text { font-size: 0.75rem; color: var(--gold-primary); margin-bottom: 15px; opacity: 0.7; }
+        #msg { text-align: center; margin-top: 15px; font-weight: 600; }
+    </style>
 </head>
 <body>
 
-<div class="admin-card">
-    <div class="glow-effect"></div>
-    <h2><i class="fas fa-gem"></i> إدارة متجر النخبة</h2>
+<div class="container">
     
-    <form id="adminApiForm">
-        <div class="input-group">
-            <label><i class="fas fa-tag"></i> اسم المنتج</label>
-            <input type="text" id="p_name" placeholder="مثال: شاورما لحم" required>
-        </div>
-
-        <div class="row">
+    <div class="admin-card">
+        <div class="glow-effect"></div>
+        <h2><i class="fas fa-gem"></i> إدارة متجر النخبة</h2>
+        
+        <form id="adminApiForm">
             <div class="input-group">
-                <label><i class="fas fa-money-bill-wave"></i> السعر (د.ع)</label>
-                <input type="number" id="p_price" placeholder="12000" required>
+                <label><i class="fas fa-tag"></i> اسم المنتج</label>
+                <input type="text" id="p_name" placeholder="مثال: شاورما لحم" required>
+            </div>
+
+            <div class="row">
+                <div class="input-group">
+                    <label><i class="fas fa-money-bill-wave"></i> السعر (د.ع)</label>
+                    <input type="number" id="p_price" placeholder="12000" required>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-boxes"></i> الكمية</label>
+                    <input type="number" id="p_qty" placeholder="10" required>
+                </div>
             </div>
 
             <div class="input-group">
-                <label><i class="fas fa-boxes"></i> الكمية</label>
-                <input type="number" id="p_qty" placeholder="10" required>
+                <label><i class="fas fa-layer-group"></i> تصنيف المنتج</label>
+                <div id="type-loader" class="loader-text">جاري جلب التصنيفات...</div>
+                <div class="category-container">
+                    <select id="p_type_select">
+                        <option value="">-- اختر تصنيفاً --</option>
+                    </select>
+                    <button type="button" class="add-type-btn" onclick="toggleNewType()">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <input type="text" id="new-type-input" placeholder="اكتب اسم التصنيف الجديد...">
             </div>
-        </div>
 
-        <div class="input-group">
-            <label><i class="fas fa-layer-group"></i> تصنيف المنتج</label>
-            <div id="type-loader" class="loader-text">جاري جلب التصنيفات...</div>
-            <div class="category-container">
-                <select id="p_type_select">
-                    <option value="">-- اختر تصنيفاً --</option>
-                </select>
-                <button type="button" class="add-type-btn" onclick="toggleNewType()">
-                    <i class="fas fa-plus"></i>
-                </button>
+            <div class="input-group">
+                <label><i class="fas fa-image"></i> رابط الصورة</label>
+                <input type="url" id="p_img" placeholder="رابط مباشر للصورة">
             </div>
-            <input type="text" id="new-type-input" placeholder="اكتب اسم التصنيف الجديد...">
-        </div>
 
-        <div class="input-group">
-            <label><i class="fas fa-image"></i> رابط الصورة</label>
-            <input type="url" id="p_img" placeholder="رابط Google Drive">
-        </div>
+            <button type="submit" id="submitBtn" class="submit-btn">حفظ في قاعدة البيانات
+        </form>
+        <div id="msg"></div>
+    </div>
 
-        <button type="submit" id="submitBtn" class="submit-btn">حفظ في السحابة</button>
-    </form>
-    
-    <div id="msg"></div>
+    <div class="admin-card">
+        <h2><i class="fas fa-shopping-basket"></i> طلبات الزبائن الواردة</h2>
+        <div id="orders-loader" class="loader-text">جاري التحديث...</div>
+        
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>الزبون</th>
+                        <th>المدينة</th>
+                        <th>الطلبات</th>
+                        <th>المجموع</th>
+                        <th>تواصل</th>
+                    </tr>
+                </thead>
+                <tbody id="orders-body">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
 </div>
 
-<script src="admin-script.js"></script>
+<script>
+    const inventorySheetID = '12XnQD1ne4fu7Q56v-RVzFVMFDCY4p18C22pzyBsBoeg';
+    const ordersSheetID = '1hCfKFp2-YvEl33FdU7gEJyzxRoSO3l9bPHCDMn58W9o';
+    const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSd_m0-myPMPCQzZJNrT8ip4mi-D0oVTh6o_mX2b9NSlz7RIIg/formResponse";
+
+    async function loadCategories() {
+        const fetchURL = `https://docs.google.com/spreadsheets/d/${inventorySheetID}/gviz/tq?tqx=out:json`;
+        try {
+            const res = await fetch(fetchURL);
+            const text = await res.text();
+            const json = JSON.parse(text.substring(text.indexOf("(") + 1, text.lastIndexOf(")")));
+            const rows = json.table.rows;
+            const categories = [...new Set(rows.map(r => r.c[4]?.v).filter(v => v && v !== "Type"))];
+            const select = document.getElementById('p_type_select');
+            select.innerHTML = '<option value="">-- اختر تصنيفاً --</option>';
+            categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat; option.innerText = cat;
+                select.appendChild(option);
+            });
+            document.getElementById('type-loader').innerText = "تم تحديث التصنيفات ✓";
+        } catch (e) { document.getElementById('type-loader').innerText = "خطأ في جلب البيانات."; }
+    }
+
+    function toggleNewType() {
+        const input = document.getElementById('new-type-input');
+        const select = document.getElementById('p_type_select');
+        if (input.style.display === 'block') {
+            input.style.display = 'none'; select.disabled = false;
+        } else {
+            input.style.display = 'block'; select.disabled = true; input.focus();
+        }
+    }
+
+    async function loadOrders() {
+        const fetchURL = `https://docs.google.com/spreadsheets/d/${ordersSheetID}/gviz/tq?tqx=out:json`;
+        try {
+            const res = await fetch(fetchURL);
+            const text = await res.text();
+            const json = JSON.parse(text.substring(text.indexOf("(") + 1, text.lastIndexOf(")")));
+            const rows = json.table.rows;
+            const tbody = document.getElementById('orders-body');
+            tbody.innerHTML = '';
+            rows.reverse().forEach(row => {
+                const data = row.c;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${data[2]?.v || 'بدون اسم'}</strong></td>
+                    <td>${data[3]?.v || '-'}</td>
+                    <td class="items-list">${data[6]?.v || '-'}</td>
+                    <td class="order-total">${data[7]?.v || '0'}</td>
+                    <td>
+                        <a href="tel:${data[4]?.v}" class="contact-link"><i class="fas fa-phone"></i></a>
+                        <a href="mailto:${data[5]?.v}" class="contact-link"><i class="fas fa-envelope"></i></a>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            document.getElementById('orders-loader').innerText = "تم التحديث ✓";
+        } catch (e) { document.getElementById('orders-loader').innerText = "خطأ في جلب الطلبات."; }
+    }
+
+    document.getElementById('adminApiForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        const msg = document.getElementById('msg');
+        const finalType = document.getElementById('new-type-input').value || document.getElementById('p_type_select').value;
+        if (!finalType) { alert("يرجى تحديد التصنيف"); return; }
+        btn.disabled = true; msg.innerText = "جاري الحفظ...";
+
+        const formData = new URLSearchParams();
+        formData.append("entry.1904055406", document.getElementById('p_name').value);
+        formData.append("entry.372117537",  document.getElementById('p_price').value);
+        formData.append("entry.663866375",  document.getElementById('p_qty').value);
+        formData.append("entry.307919813",  finalType);
+        formData.append("entry.174446568",  document.getElementById('p_img').value);
+
+        try {
+            await fetch(formURL, { method: "POST", mode: "no-cors", body: formData });
+            msg.style.color = "var(--status-good)";
+            msg.innerText = "تم الحفظ بنجاح! ✓";
+            document.getElementById('adminApiForm').reset();
+            loadCategories();
+        } catch (error) {
+            msg.style.color = "var(--status-error)";
+            msg.innerText = "حدث خطأ في الإرسال.";
+        } finally { btn.disabled = false; }
+    });
+
+    loadCategories();
+    loadOrders();
+    setInterval(loadOrders, 60000);
+</script>
+
 </body>
 </html>
