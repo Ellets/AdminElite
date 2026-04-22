@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Admin | لوحة التحكم</title>
+    <title>Elite Admin | لوحة التحكم المتكاملة</title>
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
@@ -17,218 +17,168 @@
             --bg-deep: #0b1118;
             --text-white: #f4f4f4;
             --status-good: #2ecc71;
-            --status-error: #e74c3c;
         }
 
         body {
             font-family: 'Cairo', sans-serif;
             background-color: var(--bg-deep);
             background-image: radial-gradient(circle at center, #162436 0%, #0b1118 100%);
-            margin: 0;
-            padding: 20px;
-            color: var(--text-white);
+            margin: 0; padding: 20px; color: var(--text-white);
             min-height: 100vh;
         }
 
         .container { max-width: 1000px; margin: 0 auto; }
 
-        h2 {
-            color: var(--text-white);
-            font-weight: 800;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        /* نظام التبويبات العلوي */
+        .tab-menu {
+            display: flex; gap: 10px; margin-bottom: 25px;
+            background: var(--diesel-light); padding: 10px;
+            border-radius: 20px; border: 1px solid rgba(212, 175, 55, 0.15);
         }
 
-        h2 i { color: var(--gold-primary); }
+        .tab-btn {
+            flex: 1; padding: 15px; border: none; border-radius: 15px;
+            background: transparent; color: var(--text-white);
+            font-family: 'Cairo'; font-weight: 700; cursor: pointer;
+            transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
 
+        .tab-btn.active { background: var(--gold-primary); color: var(--diesel-blue); box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3); }
+
+        .tab-content { display: none; animation: fadeIn 0.4s ease; }
+        .tab-content.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* البطاقات والجداول */
         .admin-card {
-            background: var(--diesel-light);
-            padding: 30px;
-            border-radius: 24px;
-            border: 1px solid rgba(212, 175, 55, 0.15);
+            background: var(--diesel-light); padding: 30px;
+            border-radius: 24px; border: 1px solid rgba(212, 175, 55, 0.15);
             box-shadow: 0 20px 40px rgba(0,0,0,0.4);
             position: relative;
-            overflow: hidden;
-            margin-bottom: 40px;
         }
 
-        .glow-effect {
-            position: absolute;
-            top: -60px; left: -60px;
-            width: 120px; height: 120px;
-            background: var(--gold-primary);
-            filter: blur(90px);
-            opacity: 0.15;
-        }
-
-        .input-group { margin-bottom: 20px; }
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-            color: var(--gold-glow);
-            opacity: 0.8;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 14px;
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.05);
-            background: var(--diesel-blue);
-            color: white;
-            box-sizing: border-box;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-
-        input:focus { 
-            border-color: var(--gold-primary); 
-            box-shadow: 0 0 12px rgba(212, 175, 55, 0.1);
-        }
-
-        .row { display: flex; gap: 20px; }
-        .row .input-group { flex: 1; }
-
-        .category-container { display: flex; gap: 12px; }
-        
-        .add-type-btn {
-            background: var(--gold-primary);
-            color: var(--diesel-blue);
-            border: none;
-            padding: 0 18px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        #new-type-input { display: none; margin-top: 10px; border-color: var(--gold-primary); }
-
-        .submit-btn {
-            width: 100%;
-            background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%);
-            color: var(--diesel-blue);
-            border: none;
-            padding: 16px;
-            border-radius: 12px;
-            font-weight: 800;
-            font-size: 1.1rem;
-            cursor: pointer;
-            margin-top: 15px;
+        /* زر التعديل الموحد */
+        .sheet-edit-btn {
+            position: absolute; top: 25px; left: 30px;
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--gold-primary); border: 1px solid var(--gold-primary);
+            padding: 8px 15px; border-radius: 10px; cursor: pointer;
+            font-size: 0.8rem; font-weight: bold; text-decoration: none;
             transition: 0.3s;
         }
+        .sheet-edit-btn:hover { background: var(--gold-primary); color: var(--diesel-blue); }
 
-        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(184, 134, 11, 0.4); }
-        .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .table-responsive { overflow-x: auto; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: rgba(212, 175, 55, 0.05); color: var(--gold-primary); padding: 15px; text-align: right; border-bottom: 2px solid rgba(212, 175, 55, 0.2); }
+        td { padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.03); vertical-align: middle; }
 
-        .table-responsive { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-
-        th {
-            background: rgba(212, 175, 55, 0.05);
-            color: var(--gold-primary);
-            padding: 15px;
-            text-align: right;
-            border-bottom: 2px solid rgba(212, 175, 55, 0.2);
+        /* الحقول */
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; margin-bottom: 8px; color: var(--gold-glow); font-size: 0.9rem; }
+        input, select {
+            width: 100%; padding: 14px; border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
+            background: var(--diesel-blue); color: white; outline: none; box-sizing: border-box;
         }
 
-        td { padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.03); font-size: 0.9rem; }
-
-        .items-list { color: #a0aec0; max-width: 250px; line-height: 1.5; }
-        .order-total { color: var(--gold-glow); font-weight: 800; }
-        .badge-qty { background: rgba(212, 175, 55, 0.1); color: var(--gold-glow); padding: 4px 12px; border-radius: 8px; font-weight: bold; }
-        
-        .contact-link {
-            color: var(--gold-primary);
-            text-decoration: none;
-            margin-right: 12px;
-            font-size: 1.2rem;
+        .submit-btn {
+            width: 100%; background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%);
+            color: var(--diesel-blue); border: none; padding: 16px; border-radius: 12px;
+            font-weight: 800; cursor: pointer; font-size: 1.1rem;
         }
 
-        .loader-text { font-size: 0.75rem; color: var(--gold-primary); margin-bottom: 15px; opacity: 0.7; }
-        #msg { text-align: center; margin-top: 15px; font-weight: 600; }
+        /* العناصر الخاصة */
+        .p-img-mini { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 1px solid var(--gold-primary); }
+        .badge { background: rgba(212, 175, 55, 0.1); color: var(--gold-glow); padding: 4px 10px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; }
+        .contact-link { color: var(--gold-primary); font-size: 1.3rem; margin-left: 15px; text-decoration: none; }
+        .items-list-text { font-size: 0.85rem; color: #a0aec0; max-width: 250px; line-height: 1.4; }
     </style>
 </head>
 <body>
 
 <div class="container">
     
-    <div class="admin-card">
-        <div class="glow-effect"></div>
-        <h2><i class="fas fa-plus-circle"></i> إضافة منتج جديد</h2>
-        
-        <form id="adminApiForm">
-            <div class="input-group">
-                <label><i class="fas fa-tag"></i> اسم المنتج</label>
-                <input type="text" id="p_name" placeholder="مثال: شاي سيلاني" required>
-            </div>
+    <div class="tab-menu">
+        <button class="tab-btn active" onclick="openTab(event, 'add-tab')"><i class="fas fa-plus-circle"></i> إضافة منتج</button>
+        <button class="tab-btn" onclick="openTab(event, 'inventory-tab')"><i class="fas fa-warehouse"></i> المخزن</button>
+        <button class="tab-btn" onclick="openTab(event, 'orders-tab')"><i class="fas fa-shopping-cart"></i> الطلبات</button>
+    </div>
 
-            <div class="row">
+    <div id="add-tab" class="tab-content active">
+        <div class="admin-card">
+            <h2><i class="fas fa-gem"></i> منتج جديد</h2>
+            <form id="adminApiForm">
                 <div class="input-group">
-                    <label><i class="fas fa-money-bill-wave"></i> السعر (د.ع)</label>
-                    <input type="number" id="p_price" placeholder="500" required>
+                    <label>اسم المنتج</label>
+                    <input type="text" id="p_name" placeholder="مثال: شاي بالهيل" required>
+                </div>
+                <div style="display:flex; gap:15px">
+                    <div class="input-group" style="flex:1">
+                        <label>السعر (د.ع)</label>
+                        <input type="number" id="p_price" required>
+                    </div>
+                    <div class="input-group" style="flex:1">
+                        <label>الكمية</label>
+                        <input type="number" id="p_qty" required>
+                    </div>
                 </div>
                 <div class="input-group">
-                    <label><i class="fas fa-boxes"></i> الكمية المتوفرة</label>
-                    <input type="number" id="p_qty" placeholder="50" required>
-                </div>
-            </div>
-
-            <div class="input-group">
-                <label><i class="fas fa-layer-group"></i> تصنيف المنتج</label>
-                <div id="type-loader" class="loader-text">جاري جلب التصنيفات...</div>
-                <div class="category-container">
+                    <label>التصنيف</label>
                     <select id="p_type_select">
                         <option value="">-- اختر تصنيفاً --</option>
                     </select>
-                    <button type="button" class="add-type-btn" onclick="toggleNewType()">
-                        <i class="fas fa-plus"></i>
-                    </button>
                 </div>
-                <input type="text" id="new-type-input" placeholder="اكتب اسم التصنيف الجديد...">
-            </div>
-
-            <button type="submit" id="submitBtn" class="submit-btn">حفظ في قاعدة البيانات</button>
-        </form>
-        <div id="msg"></div>
-    </div>
-
-    <div class="admin-card">
-        <h2><i class="fas fa-list-ul"></i> قائمة المنتجات الحالية</h2>
-        <div id="inventory-loader" class="loader-text">جاري التحديث...</div>
-        <div class="table-responsive">
-            <table>
-                <thead>
-                    <tr>
-                        <th>المنتج</th>
-                        <th>التصنيف</th>
-                        <th>السعر</th>
-                        <th>المخزون</th>
-                    </tr>
-                </thead>
-                <tbody id="inventory-body"></tbody>
-            </table>
+                <div class="input-group">
+                    <label>رابط الصورة</label>
+                    <input type="url" id="p_img" placeholder="https://image-url.com">
+                </div>
+                <button type="submit" id="submitBtn" class="submit-btn">حفظ في البيانات</button>
+            </form>
+            <div id="msg" style="text-align:center; margin-top:15px;"></div>
         </div>
     </div>
 
-    <div class="admin-card">
-        <h2><i class="fas fa-shopping-cart"></i> الطلبات الواردة</h2>
-        <div id="orders-loader" class="loader-text">جاري التحديث...</div>
-        <div class="table-responsive">
-            <table>
-                <thead>
-                    <tr>
-                        <th>الزبون</th>
-                        <th>المدينة</th>
-                        <th>الطلبات</th>
-                        <th>المجموع</th>
-                        <th>تواصل</th>
-                    </tr>
-                </thead>
-                <tbody id="orders-body"></tbody>
-            </table>
+    <div id="inventory-tab" class="tab-content">
+        <div class="admin-card">
+            <a id="edit-inventory-link" href="#" target="_blank" class="sheet-edit-btn"><i class="fas fa-edit"></i> تعديل في Sheets</a>
+            <h2><i class="fas fa-boxes"></i> المنتجات المتوفرة</h2>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>الصورة</th>
+                            <th>المنتج</th>
+                            <th>التصنيف</th>
+                            <th>السعر</th>
+                            <th>المخزون</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="orders-tab" class="tab-content">
+        <div class="admin-card">
+            <a id="edit-orders-link" href="#" target="_blank" class="sheet-edit-btn"><i class="fas fa-edit"></i> تعديل في Sheets</a>
+            <h2><i class="fas fa-clipboard-list"></i> الطلبات الواردة</h2>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>الزبون</th>
+                            <th>المدينة</th>
+                            <th>الطلبات</th>
+                            <th>المجموع</th>
+                            <th>تواصل</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-body"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -238,6 +188,21 @@
     const inventorySheetID = '12XnQD1ne4fu7Q56v-RVzFVMFDCY4p18C22pzyBsBoeg';
     const ordersSheetID = '1hCfKFp2-YvEl33FdU7gEJyzxRoSO3l9bPHCDMn58W9o';
     const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSd_m0-myPMPCQzZJNrT8ip4mi-D0oVTh6o_mX2b9NSlz7RIIg/formResponse";
+
+    // تحديث روابط التعديل
+    document.getElementById('edit-inventory-link').href = `https://docs.google.com/spreadsheets/d/${inventorySheetID}/edit`;
+    document.getElementById('edit-orders-link').href = `https://docs.google.com/spreadsheets/d/${ordersSheetID}/edit`;
+
+    function openTab(evt, tabName) {
+        let contents = document.getElementsByClassName("tab-content");
+        for (let i = 0; i < contents.length; i++) contents[i].style.display = "none";
+        let btns = document.getElementsByClassName("tab-btn");
+        for (let i = 0; i < btns.length; i++) btns[i].className = btns[i].className.replace(" active", "");
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+        if(tabName === 'inventory-tab') loadInventory();
+        if(tabName === 'orders-tab') loadOrders();
+    }
 
     async function loadCategories() {
         const fetchURL = `https://docs.google.com/spreadsheets/d/${inventorySheetID}/gviz/tq?tqx=out:json`;
@@ -254,8 +219,7 @@
                 option.value = cat; option.innerText = cat;
                 select.appendChild(option);
             });
-            document.getElementById('type-loader').innerText = "تم تحديث التصنيفات ✓";
-        } catch (e) { document.getElementById('type-loader').innerText = "خطأ في جلب البيانات."; }
+        } catch (e) {}
     }
 
     async function loadInventory() {
@@ -267,35 +231,19 @@
             const rows = json.table.rows;
             const tbody = document.getElementById('inventory-body');
             tbody.innerHTML = '';
-
             for (let i = 1; i < rows.length; i++) {
                 const data = rows[i].c;
-                const name = data[1]?.v || '-';
-                const price = data[2]?.v || '0';
-                const qty = data[3]?.v || '0';
-                const type = data[4]?.v || 'عام';
-
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><strong>${name}</strong></td>
-                    <td style="color:var(--gold-primary)">${type}</td>
-                    <td>${Number(price).toLocaleString()} د.ع</td>
-                    <td><span class="badge-qty">${qty}</span></td>
+                    <td><img src="${data[5]?.v || 'https://via.placeholder.com/50'}" class="p-img-mini"></td>
+                    <td><strong>${data[1]?.v || '-'}</strong></td>
+                    <td><span class="badge">${data[4]?.v || 'عام'}</span></td>
+                    <td>${data[2]?.v} د.ع</td>
+                    <td><span class="badge" style="background:rgba(255,255,255,0.05)">${data[3]?.v}</span></td>
                 `;
                 tbody.appendChild(tr);
             }
-            document.getElementById('inventory-loader').innerText = "تم تحديث المخزن ✓";
-        } catch (e) { document.getElementById('inventory-loader').innerText = "خطأ في تحميل المنتجات."; }
-    }
-
-    function toggleNewType() {
-        const input = document.getElementById('new-type-input');
-        const select = document.getElementById('p_type_select');
-        if (input.style.display === 'block') {
-            input.style.display = 'none'; select.disabled = false;
-        } else {
-            input.style.display = 'block'; select.disabled = true; input.focus();
-        }
+        } catch (e) {}
     }
 
     async function loadOrders() {
@@ -311,10 +259,10 @@
                 const data = row.c;
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><strong>${data[2]?.v || 'بدون اسم'}</strong></td>
+                    <td><strong>${data[2]?.v || 'زبون'}</strong></td>
                     <td>${data[3]?.v || '-'}</td>
-                    <td class="items-list">${data[6]?.v || '-'}</td>
-                    <td class="order-total">${data[7]?.v || '0'}</td>
+                    <td class="items-list-text">${data[6]?.v || '-'}</td>
+                    <td style="color:var(--gold-primary); font-weight:800">${data[7]?.v}</td>
                     <td>
                         <a href="tel:${data[4]?.v}" class="contact-link"><i class="fas fa-phone"></i></a>
                         <a href="mailto:${data[5]?.v}" class="contact-link"><i class="fas fa-envelope"></i></a>
@@ -322,40 +270,34 @@
                 `;
                 tbody.appendChild(tr);
             });
-            document.getElementById('orders-loader').innerText = "تم التحديث ✓";
-        } catch (e) { document.getElementById('orders-loader').innerText = "خطأ في جلب الطلبات."; }
+        } catch (e) {}
     }
 
     document.getElementById('adminApiForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = document.getElementById('submitBtn');
         const msg = document.getElementById('msg');
-        const finalType = document.getElementById('new-type-input').value || document.getElementById('p_type_select').value;
-        if (!finalType) { alert("يرجى تحديد التصنيف"); return; }
         btn.disabled = true; msg.innerText = "جاري الحفظ...";
 
         const formData = new URLSearchParams();
         formData.append("entry.1904055406", document.getElementById('p_name').value);
         formData.append("entry.372117537",  document.getElementById('p_price').value);
         formData.append("entry.663866375",  document.getElementById('p_qty').value);
-        formData.append("entry.307919813",  finalType);
+        formData.append("entry.307919813",  document.getElementById('p_type_select').value);
+        formData.append("entry.174446568",  document.getElementById('p_img').value);
 
         try {
             await fetch(formURL, { method: "POST", mode: "no-cors", body: formData });
             msg.style.color = "var(--status-good)";
             msg.innerText = "تم الحفظ بنجاح! ✓";
             document.getElementById('adminApiForm').reset();
-            setTimeout(() => { loadCategories(); loadInventory(); }, 2000);
-        } catch (error) {
-            msg.style.color = "var(--status-error)";
-            msg.innerText = "حدث خطأ في الإرسال.";
-        } finally { btn.disabled = false; }
+            loadCategories();
+        } catch (error) { msg.innerText = "حدث خطأ"; }
+        finally { btn.disabled = false; }
     });
 
     loadCategories();
-    loadInventory();
     loadOrders();
-    setInterval(() => { loadOrders(); loadInventory(); }, 60000);
 </script>
 
 </body>
