@@ -1,87 +1,63 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta name="google-site-verification" content="d49268c780f02ef9" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Store | متجر النخبة</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <title>Elite Admin | لوحة التحكم</title>
     
-    <style>
-        /* Small addition to keep the navigation button looking clean */
-        .admin-nav {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        .nav-btn {
-            background: var(--accent);
-            color: white;
-            text-decoration: none;
-            padding: 8px 15px;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .nav-btn:hover {
-            transform: scale(1.05);
-            background: #ff7a4d;
-        }
-    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="admin-style.css">
 </head>
 <body>
 
-    <header>
-        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-            <span class="logo">ELITES STORE <i class="fas fa-gem"></i> النخبة</span>
-            
-            <div class="admin-nav">
-                <a href="requestlist.html" class="nav-btn">
-                    <i class="fas fa-clipboard-list"></i> عرض الطلبات
-                </a>
+<div class="admin-card">
+    <div class="glow-effect"></div>
+    <h2><i class="fas fa-gem"></i> إدارة متجر النخبة</h2>
+    
+    <form id="adminApiForm">
+        <div class="input-group">
+            <label><i class="fas fa-tag"></i> اسم المنتج</label>
+            <input type="text" id="p_name" placeholder="مثال: شاورما لحم" required>
+        </div>
+
+        <div class="row">
+            <div class="input-group">
+                <label><i class="fas fa-money-bill-wave"></i> السعر (د.ع)</label>
+                <input type="number" id="p_price" placeholder="12000" required>
+            </div>
+
+            <div class="input-group">
+                <label><i class="fas fa-boxes"></i> الكمية</label>
+                <input type="number" id="p_qty" placeholder="10" required>
             </div>
         </div>
 
-        <div class="search-container" style="margin-top: 15px;">
-            <i class="fas fa-search"></i>
-            <input type="text" id="searchInput" placeholder="ابحث في المتجر..." onkeyup="filterProducts()">
+        <div class="input-group">
+            <label><i class="fas fa-layer-group"></i> تصنيف المنتج</label>
+            <div id="type-loader" class="loader-text">جاري جلب التصنيفات...</div>
+            <div class="category-container">
+                <select id="p_type_select">
+                    <option value="">-- اختر تصنيفاً --</option>
+                </select>
+                <button type="button" class="add-type-btn" onclick="toggleNewType()">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+            <input type="text" id="new-type-input" placeholder="اكتب اسم التصنيف الجديد...">
         </div>
-    </header>
 
-    <nav class="category-nav" id="categoryNav">
-        <div class="cat-chip active" onclick="filterByPageType('all', event)">الكل</div>
-        </nav>
-
-    <section id="featured-section">
-        <div class="section-header">عروض النخبة المختارة</div>
-        <div class="grid-container" id="featured-grid"></div>
-    </section>
-
-    <section>
-        <div class="section-header">جميع المنتجات</div>
-        <div class="grid-container" id="main-grid"></div>
-    </section>
-
-    <div class="cart-bar">
-        <div>
-            <div id="cart-total">0 د.ع</div>
-            <small class="cart-details">القطع: <span id="cart-count">0</span></small>
+        <div class="input-group">
+            <label><i class="fas fa-image"></i> رابط الصورة</label>
+            <input type="url" id="p_img" placeholder="رابط Google Drive">
         </div>
-        <button class="checkout-btn">إتمام الطلب</button>
-    </div>
 
-    <div id="imageModal" class="modal" onclick="closeModal()">
-        <span class="close">&times;</span>
-        <img class="modal-content" id="expandedImg">
-        <div id="caption"></div>
-    </div>
+        <button type="submit" id="submitBtn" class="submit-btn">حفظ في السحابة</button>
+    </form>
+    
+    <div id="msg"></div>
+</div>
 
-    <script src="script.js"></script>
+<script src="admin-script.js"></script>
 </body>
 </html>
