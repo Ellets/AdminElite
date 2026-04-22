@@ -25,109 +25,83 @@
             font-family: 'Cairo', sans-serif;
             background-color: var(--bg-deep);
             background-image: radial-gradient(circle at center, #162436 0%, #0b1118 100%);
-            margin: 0; padding: 15px; color: var(--text-white);
+            margin: 0; padding: 10px; color: var(--text-white);
             min-height: 100vh; line-height: 1.6;
         }
 
         .container { max-width: 1000px; margin: 0 auto; }
 
-        /* نظام التبويبات المتطور */
         .tab-menu {
-            display: flex; gap: 8px; margin-bottom: 20px;
-            background: var(--diesel-light); padding: 8px;
+            display: flex; gap: 6px; margin-bottom: 20px;
+            background: var(--diesel-light); padding: 6px;
             border-radius: 18px; border: 1px solid rgba(212, 175, 55, 0.15);
         }
 
         .tab-btn {
-            flex: 1; padding: 12px 5px; border: none; border-radius: 12px;
+            flex: 1; padding: 12px 2px; border: none; border-radius: 12px;
             background: transparent; color: var(--text-white);
             font-family: 'Cairo'; font-weight: 700; cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex; flex-direction: column; align-items: center; gap: 5px;
-            font-size: 0.8rem;
+            transition: 0.3s; display: flex; flex-direction: column; 
+            align-items: center; gap: 4px; font-size: 0.75rem;
         }
 
-        .tab-btn i { font-size: 1.2rem; }
-        .tab-btn.active { 
-            background: var(--gold-primary); 
-            color: var(--diesel-blue); 
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
-        }
+        .tab-btn i { font-size: 1.1rem; }
+        .tab-btn.active { background: var(--gold-primary); color: var(--diesel-blue); box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2); }
 
         .tab-content { display: none; animation: slideUp 0.4s ease; }
         .tab-content.active { display: block; }
 
-        @keyframes slideUp { 
-            from { opacity: 0; transform: translateY(15px); } 
-            to { opacity: 1; transform: translateY(0); } 
-        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* البطاقات المحسنة */
         .admin-card {
-            background: var(--diesel-light); padding: 20px;
-            border-radius: 24px; border: 1px solid rgba(212, 175, 55, 0.15);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-            position: relative; overflow: hidden;
+            background: var(--diesel-light); padding: 18px;
+            border-radius: 22px; border: 1px solid rgba(212, 175, 55, 0.12);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+            position: relative;
         }
 
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        h2 { font-size: 1.1rem; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 10px; color: var(--gold-glow); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        h2 { font-size: 1rem; font-weight: 800; margin: 0; color: var(--gold-glow); display: flex; align-items: center; gap: 8px; }
 
-        /* زر التعديل الذكي */
         .sheet-edit-btn {
-            background: rgba(212, 175, 55, 0.1);
+            background: rgba(212, 175, 55, 0.08);
             color: var(--gold-primary); border: 1px solid var(--gold-primary);
-            padding: 6px 12px; border-radius: 10px; cursor: pointer;
-            font-size: 0.75rem; font-weight: bold; text-decoration: none;
-            transition: 0.3s; display: inline-flex; align-items: center; gap: 5px;
+            padding: 5px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: bold; text-decoration: none;
         }
-        .sheet-edit-btn:hover { background: var(--gold-primary); color: var(--diesel-blue); }
 
-        /* مدخلات البيانات */
-        .input-group { margin-bottom: 15px; position: relative; }
-        label { display: block; margin-bottom: 6px; font-size: 0.8rem; color: #a0aec0; padding-right: 5px; }
+        .input-group { margin-bottom: 12px; }
+        label { display: block; margin-bottom: 5px; font-size: 0.75rem; color: #a0aec0; }
         input, select {
-            width: 100%; padding: 12px 15px; border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.08);
+            width: 100%; padding: 12px; border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.06);
             background: var(--diesel-blue); color: white; outline: none;
-            font-size: 0.95rem; font-family: 'Cairo'; transition: 0.3s;
+            font-size: 0.9rem; font-family: 'Cairo';
         }
-        input:focus { border-color: var(--gold-primary); box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1); }
 
         .submit-btn {
             width: 100%; background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%);
-            color: var(--diesel-blue); border: none; padding: 15px; border-radius: 12px;
-            font-weight: 800; cursor: pointer; font-size: 1rem; margin-top: 10px;
-            box-shadow: 0 5px 15px rgba(184, 134, 11, 0.3);
+            color: var(--diesel-blue); border: none; padding: 14px; border-radius: 10px;
+            font-weight: 800; cursor: pointer; font-size: 1rem; margin-top: 5px;
         }
 
-        /* الجداول الذكية - منع السحب الأفقي */
-        .table-container { width: 100%; overflow: hidden; margin-top: 10px; }
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        th { font-size: 0.75rem; color: var(--gold-primary); padding: 12px 5px; text-align: right; border-bottom: 2px solid rgba(212, 175, 55, 0.1); }
-        td { padding: 12px 5px; border-bottom: 1px solid rgba(255, 255, 255, 0.03); vertical-align: middle; word-wrap: break-word; }
+        th { font-size: 0.7rem; color: var(--gold-primary); padding: 10px 4px; text-align: right; border-bottom: 2px solid rgba(212, 175, 55, 0.1); }
+        td { padding: 10px 4px; border-bottom: 1px solid rgba(255, 255, 255, 0.03); vertical-align: middle; word-wrap: break-word; }
 
-        /* عناصر الجدول المخصصة */
-        .p-info { display: flex; flex-direction: column; gap: 2px; }
-        .p-name { font-weight: 700; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .p-img-mini { width: 45px; height: 45px; object-fit: cover; border-radius: 10px; border: 1px solid rgba(212, 175, 55, 0.3); background: #000; }
-        .badge { background: rgba(212, 175, 55, 0.1); color: var(--gold-glow); padding: 2px 6px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; width: fit-content; }
+        .p-info { display: flex; flex-direction: column; gap: 1px; }
+        .p-name { font-weight: 700; font-size: 0.8rem; }
+        .p-img-mini { width: 40px; height: 40px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(212, 175, 55, 0.2); }
+        .badge { background: rgba(212, 175, 55, 0.1); color: var(--gold-glow); padding: 1px 5px; border-radius: 5px; font-size: 0.65rem; width: fit-content; }
         
-        /* الطلبات */
-        .order-meta { font-size: 0.7rem; color: #7f8c8d; }
-        .order-total { color: var(--gold-primary); font-weight: 800; font-size: 0.9rem; }
-        .contact-actions { display: flex; gap: 12px; }
-        .contact-link { color: var(--gold-primary); font-size: 1.2rem; }
-
-        /* التنسيق للقسم الجديد */
-        #new_type_container { animation: slideDown 0.3s ease; }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .order-total { color: var(--gold-primary); font-weight: 800; font-size: 0.85rem; }
+        .contact-actions { display: flex; gap: 10px; align-items: center; }
+        .contact-link { color: var(--gold-primary); font-size: 1.1rem; text-decoration: none; }
+        .contact-link.mail { color: #a0aec0; font-size: 1rem; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    
     <div class="tab-menu">
         <button class="tab-btn active" onclick="openTab(event, 'add-tab')"><i class="fas fa-plus-circle"></i><span>إضافة</span></button>
         <button class="tab-btn" onclick="openTab(event, 'inventory-tab')"><i class="fas fa-boxes"></i><span>المخزن</span></button>
@@ -136,93 +110,56 @@
 
     <div id="add-tab" class="tab-content active">
         <div class="admin-card">
-            <div class="card-header">
-                <h2><i class="fas fa-plus"></i> منتج جديد</h2>
-            </div>
+            <h2><i class="fas fa-plus"></i> منتج جديد</h2>
             <form id="adminApiForm">
-                <div class="input-group">
-                    <label>اسم المنتج</label>
-                    <input type="text" id="p_name" placeholder="أدخل الاسم..." required>
+                <div class="input-group"><label>الاسم</label><input type="text" id="p_name" required></div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                    <div class="input-group"><label>السعر (د.ع)</label><input type="number" id="p_price" required></div>
+                    <div class="input-group"><label>الكمية</label><input type="number" id="p_qty" required></div>
                 </div>
-                
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
-                    <div class="input-group">
-                        <label>السعر (د.ع)</label>
-                        <input type="number" id="p_price" required>
-                    </div>
-                    <div class="input-group">
-                        <label>الكمية</label>
-                        <input type="number" id="p_qty" required>
-                    </div>
-                </div>
-
                 <div class="input-group">
                     <label>التصنيف</label>
                     <select id="p_type_select" onchange="checkNewType(this.value)">
                         <option value="">-- اختر --</option>
-                        <option value="NEW" style="color:var(--gold-primary); font-weight:bold;">+ إضافة تصنيف جديد</option>
+                        <option value="NEW" style="color:var(--gold-primary)">+ تصنيف جديد</option>
                     </select>
                 </div>
-
                 <div id="new_type_container" class="input-group" style="display:none;">
                     <label>اسم التصنيف الجديد</label>
-                    <input type="text" id="p_new_type" placeholder="مثال: مشروبات">
+                    <input type="text" id="p_new_type">
                 </div>
-
-                <div class="input-group">
-                    <label>رابط الصورة</label>
-                    <input type="url" id="p_img" placeholder="رابط مباشر أو Google Drive">
-                </div>
-                
-                <button type="submit" id="submitBtn" class="submit-btn">حفظ في قاعدة البيانات</button>
+                <div class="input-group"><label>رابط الصورة</label><input type="url" id="p_img"></div>
+                <button type="submit" id="submitBtn" class="submit-btn">حفظ المنتج</button>
             </form>
-            <div id="msg" style="text-align:center; margin-top:15px; font-weight:700;"></div>
+            <div id="msg" style="text-align:center; margin-top:10px; font-weight:700;"></div>
         </div>
     </div>
 
     <div id="inventory-tab" class="tab-content">
         <div class="admin-card">
             <div class="card-header">
-                <h2><i class="fas fa-warehouse"></i> المخزون الحالي</h2>
-                <a id="edit-inventory-link" href="#" target="_blank" class="sheet-edit-btn"><i class="fas fa-edit"></i> Sheets</a>
+                <h2><i class="fas fa-warehouse"></i> المخزون</h2>
+                <a id="edit-inventory-link" href="#" target="_blank" class="sheet-edit-btn">Sheets</a>
             </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th style="width: 55px;">صورة</th>
-                            <th>المنتج</th>
-                            <th style="width: 70px;">السعر</th>
-                            <th style="width: 45px;">العدد</th>
-                        </tr>
-                    </thead>
-                    <tbody id="inventory-body"></tbody>
-                </table>
-            </div>
+            <table>
+                <thead><tr><th style="width: 50px;">صورة</th><th>المنتج</th><th style="width: 65px;">السعر</th><th style="width: 40px;">العدد</th></tr></thead>
+                <tbody id="inventory-body"></tbody>
+            </table>
         </div>
     </div>
 
     <div id="orders-tab" class="tab-content">
         <div class="admin-card">
             <div class="card-header">
-                <h2><i class="fas fa-shopping-bag"></i> الطلبات الواردة</h2>
-                <a id="edit-orders-link" href="#" target="_blank" class="sheet-edit-btn"><i class="fas fa-edit"></i> Sheets</a>
+                <h2><i class="fas fa-shopping-bag"></i> الطلبات</h2>
+                <a id="edit-orders-link" href="#" target="_blank" class="sheet-edit-btn">Sheets</a>
             </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th style="width: 35%;">الزبون</th>
-                            <th style="width: 45%;">التفاصيل</th>
-                            <th style="width: 20%;">تواصل</th>
-                        </tr>
-                    </thead>
-                    <tbody id="orders-body"></tbody>
-                </table>
-            </div>
+            <table>
+                <thead><tr><th style="width: 35%;">الزبون</th><th style="width: 40%;">الطلب</th><th style="width: 25%;">تواصل</th></tr></thead>
+                <tbody id="orders-body"></tbody>
+            </table>
         </div>
     </div>
-
 </div>
 
 <script>
@@ -233,12 +170,10 @@
     document.getElementById('edit-inventory-link').href = `https://docs.google.com/spreadsheets/d/${inventorySheetID}/edit`;
     document.getElementById('edit-orders-link').href = `https://docs.google.com/spreadsheets/d/${ordersSheetID}/edit`;
 
-    function checkNewType(val) {
-        document.getElementById('new_type_container').style.display = (val === 'NEW') ? 'block' : 'none';
-    }
+    function checkNewType(val) { document.getElementById('new_type_container').style.display = (val === 'NEW') ? 'block' : 'none'; }
 
     function formatDriveUrl(url) {
-        if (!url) return 'https://via.placeholder.com/100?text=No+Image';
+        if (!url) return 'https://via.placeholder.com/40';
         if (url.includes('drive.google.com')) {
             const fileId = url.match(/[-\w]{25,}/);
             if (fileId) return `https://lh3.googleusercontent.com/d/${fileId[0]}`;
@@ -263,15 +198,10 @@
             const res = await fetch(fetchURL);
             const text = await res.text();
             const json = JSON.parse(text.substring(text.indexOf("(") + 1, text.lastIndexOf(")")));
-            const rows = json.table.rows;
-            const categories = [...new Set(rows.map(r => r.c[4]?.v).filter(v => v && v !== "Type"))];
+            const categories = [...new Set(json.table.rows.map(r => r.c[4]?.v).filter(v => v && v !== "Type"))];
             const select = document.getElementById('p_type_select');
-            select.innerHTML = '<option value="">-- اختر --</option><option value="NEW" style="color:var(--gold-primary)">+ إضافة تصنيف جديد</option>';
-            categories.forEach(cat => {
-                const option = document.createElement('option');
-                option.value = cat; option.innerText = cat;
-                select.appendChild(option);
-            });
+            select.innerHTML = '<option value="">-- اختر --</option><option value="NEW">+ تصنيف جديد</option>';
+            categories.forEach(cat => { select.innerHTML += `<option value="${cat}">${cat}</option>`; });
         } catch (e) {}
     }
 
@@ -285,19 +215,12 @@
             tbody.innerHTML = '';
             json.table.rows.slice(1).forEach(row => {
                 const data = row.c;
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><img src="${formatDriveUrl(data[5]?.v)}" class="p-img-mini" onerror="this.src='https://via.placeholder.com/45'"></td>
-                    <td>
-                        <div class="p-info">
-                            <span class="p-name">${data[1]?.v || '-'}</span>
-                            <span class="badge">${data[4]?.v || 'عام'}</span>
-                        </div>
-                    </td>
+                tbody.innerHTML += `<tr>
+                    <td><img src="${formatDriveUrl(data[5]?.v)}" class="p-img-mini"></td>
+                    <td><div class="p-info"><span class="p-name">${data[1]?.v || '-'}</span><span class="badge">${data[4]?.v || 'عام'}</span></div></td>
                     <td class="order-total">${data[2]?.v}</td>
                     <td><b>${data[3]?.v}</b></td>
-                `;
-                tbody.appendChild(tr);
+                </tr>`;
             });
         } catch (e) {}
     }
@@ -310,29 +233,21 @@
             const json = JSON.parse(text.substring(text.indexOf("(") + 1, text.lastIndexOf(")")));
             const tbody = document.getElementById('orders-body');
             tbody.innerHTML = '';
-            // عرض آخر 20 طلب بترتيب عكسي
-            json.table.rows.reverse().slice(0, 20).forEach(row => {
+            json.table.rows.reverse().slice(0, 15).forEach(row => {
                 const data = row.c;
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>
-                        <div class="p-info">
-                            <span class="p-name">${data[2]?.v || 'زبون'}</span>
-                            <span class="order-meta">${data[3]?.v || '-'}</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div style="font-size: 0.75rem; color:#a0aec0;">${data[6]?.v || '-'}</div>
-                        <div class="order-total">${data[7]?.v} د.ع</div>
-                    </td>
+                const phone = data[4]?.v || '';
+                const email = data[5]?.v || '';
+                tbody.innerHTML += `<tr>
+                    <td><div class="p-info"><span class="p-name">${data[2]?.v || 'زبون'}</span><span class="badge" style="font-size:0.6rem">${data[3]?.v || '-'}</span></div></td>
+                    <td><div style="font-size:0.7rem; color:#a0aec0">${data[6]?.v || '-'}</div><div class="order-total">${data[7]?.v} د.ع</div></td>
                     <td>
                         <div class="contact-actions">
-                            <a href="tel:${data[4]?.v}" class="contact-link"><i class="fas fa-phone-alt"></i></a>
-                            <a href="https://wa.me/${data[4]?.v}" class="contact-link"><i class="fab fa-whatsapp"></i></a>
+                            <a href="tel:${phone}" class="contact-link"><i class="fas fa-phone-alt"></i></a>
+                            <a href="https://wa.me/${phone.replace(/\s+/g, '')}" class="contact-link"><i class="fab fa-whatsapp"></i></a>
+                            <a href="mailto:${email}" class="contact-link mail"><i class="fas fa-envelope"></i></a>
                         </div>
                     </td>
-                `;
-                tbody.appendChild(tr);
+                </tr>`;
             });
         } catch (e) {}
     }
@@ -341,7 +256,7 @@
         e.preventDefault();
         const btn = document.getElementById('submitBtn');
         const msg = document.getElementById('msg');
-        btn.disabled = true; msg.style.color = "white"; msg.innerText = "جاري الاتصال بالسيرفر...";
+        btn.disabled = true; msg.innerText = "جاري الحفظ...";
 
         let finalType = document.getElementById('p_type_select').value;
         if(finalType === 'NEW') finalType = document.getElementById('p_new_type').value;
@@ -355,21 +270,14 @@
 
         try {
             await fetch(formURL, { method: "POST", mode: "no-cors", body: formData });
-            msg.style.color = "var(--status-good)";
-            msg.innerText = "تم الحفظ بنجاح ✓";
+            msg.style.color = "var(--gold-primary)"; msg.innerText = "تم الحفظ بنجاح! ✓";
             document.getElementById('adminApiForm').reset();
-            document.getElementById('new_type_container').style.display = 'none';
             loadCategories();
-        } catch (error) { 
-            msg.style.color = "#e74c3c";
-            msg.innerText = "فشل في الحفظ"; 
-        } finally { 
-            btn.disabled = false; 
-        }
+        } catch (error) { msg.innerText = "حدث خطأ"; }
+        finally { btn.disabled = false; }
     });
 
     loadCategories();
 </script>
-
 </body>
 </html>
