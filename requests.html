@@ -1,1 +1,112 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>نظام الجرد الشامل</title>
+    <style>
+        body { font-family: 'Cairo', sans-serif; background: #0b1118; color: white; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; background: #1e2d3e; padding: 20px; border-radius: 15px; border: 1px solid #d4af37; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: right; border-bottom: 1px solid #2d3e50; }
+        th { color: #d4af37; font-size: 0.9rem; }
+        .num-bold { font-family: monospace; font-size: 1.1rem; }
+        .status-badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; }
+        .in-stock { background: rgba(46, 204, 113, 0.2); color: #2ecc71; }
+        .out-stock { background: rgba(231, 76, 60, 0.2); color: #e74c3c; }
+        .refresh-btn { background: #d4af37; color: #131e2b; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
 
+<div class="container">
+    <h2><i class="fas fa-boxes"></i> جرد المنتجات التلقائي</h2>
+    <p style="color: #a0aec0; font-size: 0.8rem;">يتم فحص كافة الطلبات ومطابقتها مع قائمة المخزن الحالية.</p>
+    
+    <button class="refresh-btn" onclick="calculateEverything()">تحديث الجرد</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th>اسم المنتج</th>
+                <th>الكمية الأصلية</th>
+                <th>إجمالي المسحوب</th>
+                <th>المتبقي حالياً</th>
+            </tr>
+        </thead>
+        <tbody id="inventory-results">
+            </tbody>
+    </table>
+</div>
+
+<script>
+    // IDs الخاصة بجداول البيانات لديك
+    const inventorySheetID = '12XnQD1ne4fu7Q56v-RVzFVMFDCY4p18C22pzyBsBoeg';
+    const ordersSheetID = '1hCfKFp2-YvEl33FdU7gEJyzxRoSO3l9bPHCDMn58W9o';
+
+    async function fetchSheetData(id) {
+        const url = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:json`;
+        const res = await fetch(url);
+        const text = await res.text();
+        return JSON.parse(text.substring(text.indexOf("(") + 1, text.lastIndexOf(")")));
+    }
+
+    async function calculateEverything() {
+        const tbody = document.getElementById('inventory-results');
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">جاري جرد كافة المواد...</td></tr>';
+
+        try {
+            const invData = await fetchSheetData(inventorySheetID);
+            const ordData = await fetchSheetData(ordersSheetID);
+
+            // 1. حساب المسحوب لكل المنتجات
+            let demandMap = {};
+            
+            ordData.table.rows.slice(1).forEach(row => {
+                let orderString = row.c[6]?.v; // العمود G الذي يحتوي الطلبات
+                if (orderString) {
+                    // هذا النمط يستخرج الاسم والعدد من تنسيق: اسم (xعدد)
+                    const regex = /([^,()]+)\s*\(x(\d+)\)/g;
+                    let match;
+                    while ((match = regex.exec(orderString)) !== null) {
+                        let name = match[1].trim().toLowerCase();
+                        let qty = parseInt(match[2]);
+                        demandMap[name] = (demandMap[name] || 0) + qty;
+                    }
+                }
+            });
+
+            // 2. بناء الجدول بناءً على قائمة المخزن
+            tbody.innerHTML = '';
+            invData.table.rows.slice(1).forEach(row => {
+                let productName = row.c[1]?.v || 'غير مسمى'; // العمود B
+                let stockOriginal = Number(row.c[3]?.v || 0); // العمود D
+                
+                let key = productName.toString().toLowerCase().trim();
+                let totalTaken = demandMap[key] || 0;
+                let netStock = stockOriginal - totalTaken;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${productName}</strong></td>
+                        <td class="num-bold">${stockOriginal}</td>
+                        <td class="num-bold" style="color: #d4af37;">${totalTaken}</td>
+                        <td>
+                            <span class="status-badge ${netStock > 0 ? 'in-stock' : 'out-stock'}">
+                                ${netStock}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            });
+
+        } catch (error) {
+            tbody.innerHTML = '<tr><td colspan="4" style="color:red;">خطأ في جلب البيانات من Google Sheets</td></tr>';
+        }
+    }
+
+    // تشغيل الحساب عند تحميل الصفحة
+    calculateEverything();
+</script>
+
+</body>
+</html>
