@@ -102,7 +102,7 @@
 <body>
 
 <div class="container">
-   <div class="tab-menu">
+  <div class="tab-menu">
         <button class="tab-btn active" onclick="openTab(event, 'add-tab')">
             <i class="fas fa-plus-circle"></i><span>إضافة</span>
         </button>
@@ -113,9 +113,14 @@
             <i class="fas fa-list-check"></i><span>الطلبات</span>
         </button>
         
-        <button class="tab-btn" onclick="window.location.href='requests.html'" style="border-right: 1px solid rgba(212, 175, 55, 0.3); margin-right: 5px;">
+        <button class="tab-btn" onclick="window.location.href='requests.html'">
             <i class="fas fa-calculator" style="color:var(--gold-primary)"></i>
             <span style="color:var(--gold-primary)">الجرد الفعلي</span>
+        </button>
+
+        <button class="tab-btn" onclick="window.open('https://ellets.github.io/Ellites/', '_blank')" style="background: rgba(212, 175, 55, 0.05); border-left: 1px solid rgba(212, 175, 55, 0.2);">
+            <i class="fas fa-external-link-alt" style="color:var(--gold-glow)"></i>
+            <span style="color:var(--gold-glow)">عرض المتجر</span>
         </button>
     </div>
 
