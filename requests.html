@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Admin | الجرد المطور</title>
+    <title>Elite Admin | الجرد الكامل</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
@@ -19,95 +19,77 @@
             font-family: 'Cairo', sans-serif;
             background-color: #0b1118;
             color: var(--text-white);
-            margin: 0; padding: 10px;
+            margin: 0; padding: 15px;
         }
-        .container { max-width: 800px; margin: 0 auto; }
+        .container { max-width: 1000px; margin: 0 auto; }
         
         .header { 
             display: flex; justify-content: space-between; 
-            align-items: center; margin: 15px 5px; 
+            align-items: center; margin-bottom: 25px; 
         }
         
         .back-btn { 
             text-decoration: none; color: var(--gold-primary); 
-            font-weight: bold; font-size: 0.8rem; border: 1px solid var(--gold-primary);
-            padding: 6px 12px; border-radius: 10px; transition: 0.3s;
+            font-weight: bold; font-size: 0.9rem; border: 2px solid var(--gold-primary);
+            padding: 10px 20px; border-radius: 12px; transition: 0.3s;
         }
+        .back-btn:hover { background: var(--gold-primary); color: var(--diesel-blue); }
 
-        .card {
+        .admin-card {
             background: var(--diesel-light);
-            padding: 15px; border-radius: 20px;
-            border: 1px solid rgba(212, 175, 55, 0.15);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            padding: 25px; border-radius: 24px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
         }
 
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: right; color: var(--gold-primary); font-size: 0.8rem; padding: 12px; border-bottom: 2px solid rgba(212, 175, 55, 0.1); }
-        td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { 
+            text-align: right; color: var(--gold-primary); 
+            font-size: 0.9rem; padding: 15px 10px; 
+            border-bottom: 3px solid rgba(212, 175, 55, 0.15); 
+        }
+        td { 
+            padding: 18px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); 
+            font-size: 1rem; 
+        }
+        
+        .product-name { font-weight: 800; color: #fff; }
         
         .stock-badge { 
-            font-weight: 800; padding: 4px 10px; border-radius: 8px; 
-            display: inline-block; min-width: 40px; text-align: center;
+            font-weight: 800; padding: 6px 14px; border-radius: 10px; 
+            display: inline-block; min-width: 50px; text-align: center;
+            font-size: 1.1rem;
         }
-        .bg-green { background: rgba(46, 204, 113, 0.15); color: var(--status-good); }
-        .bg-red { background: rgba(231, 76, 60, 0.15); color: var(--status-low); }
+        .bg-green { background: rgba(46, 204, 113, 0.2); color: var(--status-good); }
+        .bg-red { background: rgba(231, 76, 60, 0.2); color: var(--status-low); }
 
-        /* --- MOBILE OPTIMIZATION --- */
+        .loader { text-align: center; padding: 50px; color: var(--gold-primary); font-weight: bold; font-size: 1.2rem; }
+
+        /* Subtle mobile tweak just to prevent squashing */
         @media screen and (max-width: 600px) {
-            table thead { display: none; } /* Hide headers on mobile */
-            
-            table, tbody, tr, td { display: block; width: 100%; }
-
-            tr {
-                margin-bottom: 15px;
-                background: rgba(255, 255, 255, 0.02);
-                padding: 10px;
-                border-radius: 15px;
-                border: 1px solid rgba(212, 175, 55, 0.1);
-            }
-
-            td {
-                text-align: left; /* Numbers to the left */
-                display: flex;
-                justify-content: space-between; /* Label right, Value left */
-                padding: 8px 5px;
-                border: none;
-                direction: ltr; /* Flip for flex-between logic in RTL */
-            }
-
-            td strong, td span, td span.stock-badge {
-                direction: rtl; /* Keep text content Arabic/RTL */
-            }
-
-            td::after {
-                content: attr(data-label);
-                font-weight: bold;
-                color: var(--gold-primary);
-                font-size: 0.8rem;
-                direction: rtl;
-            }
+            .admin-card { padding: 15px; }
+            td, th { padding: 12px 5px; font-size: 0.85rem; }
+            .stock-badge { padding: 4px 8px; font-size: 0.9rem; }
         }
-
-        .loader { text-align: center; padding: 40px; color: var(--gold-primary); font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h2 style="font-size: 1.1rem; margin:0;"><i class="fas fa-calculator"></i> الجرد الذكي</h2>
-        <a href="index.html" class="back-btn"><i class="fas fa-arrow-right"></i> الرئيسية</a>
+        <h2><i class="fas fa-calculator" style="color:var(--gold-primary)"></i> تقرير الجرد العام</h2>
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-right"></i> الرجوع للوحة</a>
     </div>
 
-    <div class="card">
-        <div id="loading" class="loader">جاري مزامنة المخزن...</div>
+    <div class="admin-card">
+        <div id="loading" class="loader">جاري مزامنة كافة المواد...</div>
         <table id="resultTable" style="display:none;">
             <thead>
                 <tr>
                     <th>المادة</th>
-                    <th>بالمخزن</th>
+                    <th>المخزن</th>
                     <th>المحجوز</th>
-                    <th>المتبقي</th>
+                    <th>الصافي</th>
                 </tr>
             </thead>
             <tbody id="inventory-body"></tbody>
@@ -129,6 +111,7 @@
         try {
             const [invJson, ordJson] = await Promise.all([fetchJSON(inventorySheetID), fetchJSON(ordersSheetID)]);
             
+            // Map the taken amounts
             let demandMap = {};
             ordJson.table.rows.slice(1).forEach(row => {
                 let cell = row.c[6]?.v;
@@ -155,10 +138,10 @@
 
                 tbody.innerHTML += `
                     <tr>
-                        <td data-label="المادة"><strong>${originalName}</strong></td>
-                        <td data-label="بالمخزن" style="color:#a0aec0">${stock}</td>
-                        <td data-label="المحجوز" style="color:var(--gold-primary)">${taken}</td>
-                        <td data-label="المتبقي">
+                        <td class="product-name">${originalName}</td>
+                        <td style="color:#a0aec0">${stock}</td>
+                        <td style="color:var(--gold-primary); font-weight:bold;">${taken}</td>
+                        <td>
                             <span class="stock-badge ${remaining > 0 ? 'bg-green' : 'bg-red'}">
                                 ${remaining}
                             </span>
@@ -170,7 +153,7 @@
             document.getElementById('resultTable').style.display = 'table';
 
         } catch (error) {
-            document.getElementById('loading').innerHTML = "فشل الاتصال بالبيانات";
+            document.getElementById('loading').innerHTML = "تعذر الاتصال بقاعدة البيانات";
         }
     }
 
