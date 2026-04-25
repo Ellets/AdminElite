@@ -2,72 +2,140 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>نظام الجرد الشامل</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Admin | الجرد المطور</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Cairo', sans-serif; background: #0b1118; color: white; padding: 20px; }
-        .container { max-width: 900px; margin: 0 auto; background: #1e2d3e; padding: 20px; border-radius: 15px; border: 1px solid #d4af37; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 12px; text-align: right; border-bottom: 1px solid #2d3e50; }
-        th { color: #d4af37; font-size: 0.9rem; }
-        .num-bold { font-family: monospace; font-size: 1.1rem; }
-        .status-badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; }
-        .in-stock { background: rgba(46, 204, 113, 0.2); color: #2ecc71; }
-        .out-stock { background: rgba(231, 76, 60, 0.2); color: #e74c3c; }
-        .refresh-btn { background: #d4af37; color: #131e2b; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 10px; }
+        :root {
+            --diesel-blue: #131e2b;
+            --diesel-light: #1e2d3e;
+            --gold-primary: #d4af37;
+            --text-white: #f4f4f4;
+            --status-good: #2ecc71;
+            --status-low: #e74c3c;
+        }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #0b1118;
+            color: var(--text-white);
+            margin: 0; padding: 10px;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        
+        .header { 
+            display: flex; justify-content: space-between; 
+            align-items: center; margin: 15px 5px; 
+        }
+        
+        .back-btn { 
+            text-decoration: none; color: var(--gold-primary); 
+            font-weight: bold; font-size: 0.8rem; border: 1px solid var(--gold-primary);
+            padding: 6px 12px; border-radius: 10px; transition: 0.3s;
+        }
+
+        .card {
+            background: var(--diesel-light);
+            padding: 15px; border-radius: 20px;
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: right; color: var(--gold-primary); font-size: 0.8rem; padding: 12px; border-bottom: 2px solid rgba(212, 175, 55, 0.1); }
+        td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; }
+        
+        .stock-badge { 
+            font-weight: 800; padding: 4px 10px; border-radius: 8px; 
+            display: inline-block; min-width: 40px; text-align: center;
+        }
+        .bg-green { background: rgba(46, 204, 113, 0.15); color: var(--status-good); }
+        .bg-red { background: rgba(231, 76, 60, 0.15); color: var(--status-low); }
+
+        /* --- MOBILE OPTIMIZATION --- */
+        @media screen and (max-width: 600px) {
+            table thead { display: none; } /* Hide headers on mobile */
+            
+            table, tbody, tr, td { display: block; width: 100%; }
+
+            tr {
+                margin-bottom: 15px;
+                background: rgba(255, 255, 255, 0.02);
+                padding: 10px;
+                border-radius: 15px;
+                border: 1px solid rgba(212, 175, 55, 0.1);
+            }
+
+            td {
+                text-align: left; /* Numbers to the left */
+                display: flex;
+                justify-content: space-between; /* Label right, Value left */
+                padding: 8px 5px;
+                border: none;
+                direction: ltr; /* Flip for flex-between logic in RTL */
+            }
+
+            td strong, td span, td span.stock-badge {
+                direction: rtl; /* Keep text content Arabic/RTL */
+            }
+
+            td::after {
+                content: attr(data-label);
+                font-weight: bold;
+                color: var(--gold-primary);
+                font-size: 0.8rem;
+                direction: rtl;
+            }
+        }
+
+        .loader { text-align: center; padding: 40px; color: var(--gold-primary); font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2><i class="fas fa-boxes"></i> جرد المنتجات التلقائي</h2>
-    <p style="color: #a0aec0; font-size: 0.8rem;">يتم فحص كافة الطلبات ومطابقتها مع قائمة المخزن الحالية.</p>
-    
-    <button class="refresh-btn" onclick="calculateEverything()">تحديث الجرد</button>
+    <div class="header">
+        <h2 style="font-size: 1.1rem; margin:0;"><i class="fas fa-calculator"></i> الجرد الذكي</h2>
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-right"></i> الرئيسية</a>
+    </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>اسم المنتج</th>
-                <th>الكمية الأصلية</th>
-                <th>إجمالي المسحوب</th>
-                <th>المتبقي حالياً</th>
-            </tr>
-        </thead>
-        <tbody id="inventory-results">
-            </tbody>
-    </table>
+    <div class="card">
+        <div id="loading" class="loader">جاري مزامنة المخزن...</div>
+        <table id="resultTable" style="display:none;">
+            <thead>
+                <tr>
+                    <th>المادة</th>
+                    <th>بالمخزن</th>
+                    <th>المحجوز</th>
+                    <th>المتبقي</th>
+                </tr>
+            </thead>
+            <tbody id="inventory-body"></tbody>
+        </table>
+    </div>
 </div>
 
 <script>
-    // IDs الخاصة بجداول البيانات لديك
     const inventorySheetID = '12XnQD1ne4fu7Q56v-RVzFVMFDCY4p18C22pzyBsBoeg';
     const ordersSheetID = '1hCfKFp2-YvEl33FdU7gEJyzxRoSO3l9bPHCDMn58W9o';
 
-    async function fetchSheetData(id) {
-        const url = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:json`;
-        const res = await fetch(url);
+    async function fetchJSON(id) {
+        const res = await fetch(`https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:json`);
         const text = await res.text();
         return JSON.parse(text.substring(text.indexOf("(") + 1, text.lastIndexOf(")")));
     }
 
-    async function calculateEverything() {
-        const tbody = document.getElementById('inventory-results');
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">جاري جرد كافة المواد...</td></tr>';
-
+    async function generateReport() {
         try {
-            const invData = await fetchSheetData(inventorySheetID);
-            const ordData = await fetchSheetData(ordersSheetID);
-
-            // 1. حساب المسحوب لكل المنتجات
-            let demandMap = {};
+            const [invJson, ordJson] = await Promise.all([fetchJSON(inventorySheetID), fetchJSON(ordersSheetID)]);
             
-            ordData.table.rows.slice(1).forEach(row => {
-                let orderString = row.c[6]?.v; // العمود G الذي يحتوي الطلبات
-                if (orderString) {
-                    // هذا النمط يستخرج الاسم والعدد من تنسيق: اسم (xعدد)
+            let demandMap = {};
+            ordJson.table.rows.slice(1).forEach(row => {
+                let cell = row.c[6]?.v;
+                if (cell) {
                     const regex = /([^,()]+)\s*\(x(\d+)\)/g;
                     let match;
-                    while ((match = regex.exec(orderString)) !== null) {
+                    while ((match = regex.exec(cell)) !== null) {
                         let name = match[1].trim().toLowerCase();
                         let qty = parseInt(match[2]);
                         demandMap[name] = (demandMap[name] || 0) + qty;
@@ -75,38 +143,38 @@
                 }
             });
 
-            // 2. بناء الجدول بناءً على قائمة المخزن
+            const tbody = document.getElementById('inventory-body');
             tbody.innerHTML = '';
-            invData.table.rows.slice(1).forEach(row => {
-                let productName = row.c[1]?.v || 'غير مسمى'; // العمود B
-                let stockOriginal = Number(row.c[3]?.v || 0); // العمود D
-                
-                let key = productName.toString().toLowerCase().trim();
-                let totalTaken = demandMap[key] || 0;
-                let netStock = stockOriginal - totalTaken;
+            
+            invJson.table.rows.slice(1).forEach(row => {
+                let originalName = row.c[1]?.v || 'مادة';
+                let stock = Number(row.c[3]?.v || 0);
+                let key = originalName.toString().toLowerCase().trim();
+                let taken = demandMap[key] || 0;
+                let remaining = stock - taken;
 
                 tbody.innerHTML += `
                     <tr>
-                        <td><strong>${productName}</strong></td>
-                        <td class="num-bold">${stockOriginal}</td>
-                        <td class="num-bold" style="color: #d4af37;">${totalTaken}</td>
-                        <td>
-                            <span class="status-badge ${netStock > 0 ? 'in-stock' : 'out-stock'}">
-                                ${netStock}
+                        <td data-label="المادة"><strong>${originalName}</strong></td>
+                        <td data-label="بالمخزن" style="color:#a0aec0">${stock}</td>
+                        <td data-label="المحجوز" style="color:var(--gold-primary)">${taken}</td>
+                        <td data-label="المتبقي">
+                            <span class="stock-badge ${remaining > 0 ? 'bg-green' : 'bg-red'}">
+                                ${remaining}
                             </span>
                         </td>
-                    </tr>
-                `;
+                    </tr>`;
             });
 
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('resultTable').style.display = 'table';
+
         } catch (error) {
-            tbody.innerHTML = '<tr><td colspan="4" style="color:red;">خطأ في جلب البيانات من Google Sheets</td></tr>';
+            document.getElementById('loading').innerHTML = "فشل الاتصال بالبيانات";
         }
     }
 
-    // تشغيل الحساب عند تحميل الصفحة
-    calculateEverything();
+    generateReport();
 </script>
-
 </body>
 </html>
