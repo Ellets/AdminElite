@@ -17,7 +17,6 @@
             --bg-deep: #0b1118;
             --text-white: #f4f4f4;
             --status-good: #2ecc71;
-            --status-bad: #ff4d4d;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -111,16 +110,12 @@
 
     <div id="add-tab" class="tab-content active">
         <div class="admin-card">
-            <h2><i class="fas fa-plus"></i> إضافة أو تحديث منتج</h2>
+            <h2><i class="fas fa-plus"></i> منتج جديد</h2>
             <form id="adminApiForm">
-                <div class="input-group">
-                    <label>اسم المنتج (اختر موجود أو اكتب جديد)</label>
-                    <input type="text" id="p_name" list="existing-products" required placeholder="ابحث عن منتج...">
-                    <datalist id="existing-products"></datalist>
-                </div>
+                <div class="input-group"><label>الاسم</label><input type="text" id="p_name" required></div>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
                     <div class="input-group"><label>السعر (د.ع)</label><input type="number" id="p_price" required></div>
-                    <div class="input-group"><label>الكمية الأصلية</label><input type="number" id="p_qty" required></div>
+                    <div class="input-group"><label>الكمية</label><input type="number" id="p_qty" required></div>
                 </div>
                 <div class="input-group">
                     <label>التصنيف</label>
@@ -134,7 +129,7 @@
                     <input type="text" id="p_new_type">
                 </div>
                 <div class="input-group"><label>رابط الصورة</label><input type="url" id="p_img"></div>
-                <button type="submit" id="submitBtn" class="submit-btn">حفظ البيانات</button>
+                <button type="submit" id="submitBtn" class="submit-btn">حفظ المنتج</button>
             </form>
             <div id="msg" style="text-align:center; margin-top:10px; font-weight:700;"></div>
         </div>
@@ -143,11 +138,11 @@
     <div id="inventory-tab" class="tab-content">
         <div class="admin-card">
             <div class="card-header">
-                <h2><i class="fas fa-warehouse"></i> المخزون المباشر</h2>
+                <h2><i class="fas fa-warehouse"></i> المخزون</h2>
                 <a id="edit-inventory-link" href="#" target="_blank" class="sheet-edit-btn">Sheets</a>
             </div>
             <table>
-                <thead><tr><th style="width: 50px;">صورة</th><th>المنتج</th><th style="width: 75px;">السعر</th><th style="width: 45px;">المتوفر</th></tr></thead>
+                <thead><tr><th style="width: 50px;">صورة</th><th>المنتج</th><th style="width: 65px;">السعر</th><th style="width: 40px;">العدد</th></tr></thead>
                 <tbody id="inventory-body"></tbody>
             </table>
         </div>
@@ -171,112 +166,90 @@
     const inventorySheetID = '12XnQD1ne4fu7Q56v-RVzFVMFDCY4p18C22pzyBsBoeg';
     const ordersSheetID = '1hCfKFp2-YvEl33FdU7gEJyzxRoSO3l9bPHCDMn58W9o';
     const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSd_m0-myPMPCQzZJNrT8ip4mi-D0oVTh6o_mX2b9NSlz7RIIg/formResponse";
-    const proxy = "https://api.allorigins.win/get?url=";
+
+    document.getElementById('edit-inventory-link').href = `https://docs.google.com/spreadsheets/d/${inventorySheetID}/edit`;
+    document.getElementById('edit-orders-link').href = `https://docs.google.com/spreadsheets/d/${ordersSheetID}/edit`;
 
     function checkNewType(val) { document.getElementById('new_type_container').style.display = (val === 'NEW') ? 'block' : 'none'; }
 
     function formatDriveUrl(url) {
         if (!url) return 'https://via.placeholder.com/40';
-        const fileId = url.match(/[-\w]{25,}/);
-        return fileId ? `https://lh3.googleusercontent.com/d/${fileId[0]}` : url;
-    }
-
-    async function fetchSheetData(id) {
-        const sheetUrl = encodeURIComponent(`https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:json`);
-        const res = await fetch(`${proxy}${sheetUrl}`);
-        const data = await res.json();
-        const text = data.contents;
-        return JSON.parse(text.substring(text.indexOf("(") + 1, text.lastIndexOf(")")));
-    }
-
-    async function loadInventoryWithMath() {
-        const tbody = document.getElementById('inventory-body');
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">جاري المعالجة...</td></tr>';
-
-        try {
-            const [invData, ordData] = await Promise.all([
-                fetchSheetData(inventorySheetID),
-                fetchSheetData(ordersSheetID)
-            ]);
-
-            const inventoryRows = invData.table.rows.slice(1);
-            const orderRows = ordData.table.rows.slice(1);
-
-            // Calculate sales from orders
-            const salesMap = {};
-            orderRows.forEach(row => {
-                const itemName = row.c[6]?.v; 
-                const qty = parseFloat(row.c[8]?.v) || 0;
-                if (itemName) salesMap[itemName] = (salesMap[itemName] || 0) + qty;
-            });
-
-            const datalist = document.getElementById('existing-products');
-            const typeSelect = document.getElementById('p_type_select');
-            tbody.innerHTML = '';
-            datalist.innerHTML = '';
-            const cats = new Set();
-
-            inventoryRows.forEach(row => {
-                const data = row.c;
-                const name = data[1]?.v;
-                if (!name) return;
-
-                const startQty = parseFloat(data[3]?.v) || 0;
-                const soldQty = salesMap[name] || 0;
-                const currentStock = startQty - soldQty;
-
-                const isOut = currentStock <= 0;
-                
-                tbody.innerHTML += `
-                    <tr>
-                        <td><img src="${formatDriveUrl(data[5]?.v)}" class="p-img-mini"></td>
-                        <td><div class="p-info"><span class="p-name">${name}</span><span class="badge">${data[4]?.v || 'عام'}</span></div></td>
-                        <td class="order-total">${data[2]?.v}</td>
-                        <td><b style="color: ${isOut ? 'var(--status-bad)' : 'var(--status-good)'}">${isOut ? 'نفذ' : currentStock}</b></td>
-                    </tr>`;
-
-                datalist.innerHTML += `<option value="${name}">`;
-                if (data[4]?.v) cats.add(data[4].v);
-            });
-
-            typeSelect.innerHTML = '<option value="">-- اختر --</option><option value="NEW">+ تصنيف جديد</option>';
-            cats.forEach(c => typeSelect.innerHTML += `<option value="${c}">${c}</option>`);
-        } catch (e) {
-            tbody.innerHTML = '<tr><td colspan="4" style="color:red;">خطأ في جلب البيانات</td></tr>';
+        if (url.includes('drive.google.com')) {
+            const fileId = url.match(/[-\w]{25,}/);
+            if (fileId) return `https://lh3.googleusercontent.com/d/${fileId[0]}`;
         }
+        return url;
     }
 
-    async function loadOrders() {
-        const tbody = document.getElementById('orders-body');
-        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">جاري التحميل...</td></tr>';
+    function openTab(evt, tabName) {
+        let contents = document.getElementsByClassName("tab-content");
+        for (let i = 0; i < contents.length; i++) contents[i].style.display = "none";
+        let btns = document.getElementsByClassName("tab-btn");
+        for (let i = 0; i < btns.length; i++) btns[i].className = btns[i].className.replace(" active", "");
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+        if(tabName === 'inventory-tab') loadInventory();
+        if(tabName === 'orders-tab') loadOrders();
+    }
+
+    async function loadCategories() {
+        const fetchURL = `https://docs.google.com/spreadsheets/d/${inventorySheetID}/gviz/tq?tqx=out:json`;
         try {
-            const json = await fetchSheetData(ordersSheetID);
+            const res = await fetch(fetchURL);
+            const text = await res.text();
+            const json = JSON.parse(text.substring(text.indexOf("(") + 1, text.lastIndexOf(")")));
+            const categories = [...new Set(json.table.rows.map(r => r.c[4]?.v).filter(v => v && v !== "Type"))];
+            const select = document.getElementById('p_type_select');
+            select.innerHTML = '<option value="">-- اختر --</option><option value="NEW">+ تصنيف جديد</option>';
+            categories.forEach(cat => { select.innerHTML += `<option value="${cat}">${cat}</option>`; });
+        } catch (e) {}
+    }
+
+    async function loadInventory() {
+        const fetchURL = `https://docs.google.com/spreadsheets/d/${inventorySheetID}/gviz/tq?tqx=out:json`;
+        try {
+            const res = await fetch(fetchURL);
+            const text = await res.text();
+            const json = JSON.parse(text.substring(text.indexOf("(") + 1, text.lastIndexOf(")")));
+            const tbody = document.getElementById('inventory-body');
             tbody.innerHTML = '';
-            json.table.rows.reverse().slice(0, 20).forEach(row => {
+            json.table.rows.slice(1).forEach(row => {
                 const data = row.c;
-                const phone = String(data[4]?.v || '').replace(/\D/g,'');
-                tbody.innerHTML += `
-                    <tr>
-                        <td><div class="p-info"><span class="p-name">${data[2]?.v || 'زبون'}</span><span class="badge">${data[3]?.v || '-'}</span></div></td>
-                        <td><div style="font-size:0.7rem; color:#a0aec0">${data[6]?.v || '-'}</div><div class="order-total">${data[7]?.v} د.ع</div></td>
-                        <td>
-                            <div class="contact-actions">
-                                <a href="tel:${phone}" class="contact-link"><i class="fas fa-phone-alt"></i></a>
-                                <a href="https://wa.me/${phone}" class="contact-link"><i class="fab fa-whatsapp"></i></a>
-                            </div>
-                        </td>
-                    </tr>`;
+                tbody.innerHTML += `<tr>
+                    <td><img src="${formatDriveUrl(data[5]?.v)}" class="p-img-mini"></td>
+                    <td><div class="p-info"><span class="p-name">${data[1]?.v || '-'}</span><span class="badge">${data[4]?.v || 'عام'}</span></div></td>
+                    <td class="order-total">${data[2]?.v}</td>
+                    <td><b>${data[3]?.v}</b></td>
+                </tr>`;
             });
         } catch (e) {}
     }
 
-    function openTab(evt, tabName) {
-        document.querySelectorAll(".tab-content").forEach(c => c.style.display = "none");
-        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-        document.getElementById(tabName).style.display = "block";
-        evt.currentTarget.classList.add("active");
-        if(tabName === 'inventory-tab') loadInventoryWithMath();
-        if(tabName === 'orders-tab') loadOrders();
+    async function loadOrders() {
+        const fetchURL = `https://docs.google.com/spreadsheets/d/${ordersSheetID}/gviz/tq?tqx=out:json`;
+        try {
+            const res = await fetch(fetchURL);
+            const text = await res.text();
+            const json = JSON.parse(text.substring(text.indexOf("(") + 1, text.lastIndexOf(")")));
+            const tbody = document.getElementById('orders-body');
+            tbody.innerHTML = '';
+            json.table.rows.reverse().slice(0, 15).forEach(row => {
+                const data = row.c;
+                const phone = data[4]?.v || '';
+                const email = data[5]?.v || '';
+                tbody.innerHTML += `<tr>
+                    <td><div class="p-info"><span class="p-name">${data[2]?.v || 'زبون'}</span><span class="badge" style="font-size:0.6rem">${data[3]?.v || '-'}</span></div></td>
+                    <td><div style="font-size:0.7rem; color:#a0aec0">${data[6]?.v || '-'}</div><div class="order-total">${data[7]?.v} د.ع</div></td>
+                    <td>
+                        <div class="contact-actions">
+                            <a href="tel:${phone}" class="contact-link" title="اتصال"><i class="fas fa-phone-alt"></i></a>
+                            <a href="https://wa.me/${phone.replace(/\s+/g, '')}" class="contact-link" title="واتساب"><i class="fab fa-whatsapp"></i></a>
+                            <a href="mailto:${email}" class="contact-link" title="بريد"><i class="fas fa-envelope"></i></a>
+                        </div>
+                    </td>
+                </tr>`;
+            });
+        } catch (e) {}
     }
 
     document.getElementById('adminApiForm').addEventListener('submit', async (e) => {
@@ -284,7 +257,7 @@
         const btn = document.getElementById('submitBtn');
         const msg = document.getElementById('msg');
         btn.disabled = true; msg.innerText = "جاري الحفظ...";
-        
+
         let finalType = document.getElementById('p_type_select').value;
         if(finalType === 'NEW') finalType = document.getElementById('p_new_type').value;
 
@@ -299,16 +272,12 @@
             await fetch(formURL, { method: "POST", mode: "no-cors", body: formData });
             msg.style.color = "var(--gold-primary)"; msg.innerText = "تم الحفظ بنجاح! ✓";
             document.getElementById('adminApiForm').reset();
-            loadInventoryWithMath();
+            loadCategories();
         } catch (error) { msg.innerText = "حدث خطأ"; }
         finally { btn.disabled = false; }
     });
 
-    window.onload = () => {
-        document.getElementById('edit-inventory-link').href = `https://docs.google.com/spreadsheets/d/${inventorySheetID}/edit`;
-        document.getElementById('edit-orders-link').href = `https://docs.google.com/spreadsheets/d/${ordersSheetID}/edit`;
-        loadInventoryWithMath();
-    };
+    loadCategories();
 </script>
 </body>
 </html>
