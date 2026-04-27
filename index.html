@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Admin Pro | لوحة التحكم</title>
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --diesel-blue: #131e2b;
+            --diesel-light: #1e2d3e;
+            --gold-primary: #d4af37;
+            --gold-glow: #f9e29c;
+            --bg-deep: #0b1118;
+            --text-white: #f4f4f4;
+            --status-good: #2ecc71;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-deep);
+            background-image: radial-gradient(circle at center, #162436 0%, #0b1118 100%);
+            margin: 0; padding: 10px; color: var(--text-white);
+            min-height: 100vh; line-height: 1.6;
+        }
+
+        .container { max-width: 1000px; margin: 0 auto; }
+
+        .tab-menu {
+            display: flex; gap: 6px; margin-bottom: 20px;
+            background: var(--diesel-light); padding: 6px;
+            border-radius: 18px; border: 1px solid rgba(212, 175, 55, 0.15);
+        }
+
+        .tab-btn {
+            flex: 1; padding: 12px 2px; border: none; border-radius: 12px;
+            background: transparent; color: var(--text-white);
+            font-family: 'Cairo'; font-weight: 700; cursor: pointer;
+            transition: 0.3s; display: flex; flex-direction: column; 
+            align-items: center; gap: 4px; font-size: 0.75rem;
+        }
+
+        .tab-btn i { font-size: 1.1rem; }
+        .tab-btn.active { background: var(--gold-primary); color: var(--diesel-blue); box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2); }
+
+        .tab-content { display: none; animation: slideUp 0.4s ease; }
+        .tab-content.active { display: block; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .admin-card {
+            background: var(--diesel-light); padding: 18px;
+            border-radius: 22px; border: 1px solid rgba(212, 175, 55, 0.12);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        h2 { font-size: 1rem; font-weight: 800; margin: 0 0 15px 0; color: var(--gold-glow); display: flex; align-items: center; gap: 8px; }
+
+        .input-group { margin-bottom: 12px; }
+        label { display: block; margin-bottom: 5px; font-size: 0.75rem; color: #a0aec0; }
+        input, select {
+            width: 100%; padding: 12px; border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.06);
+            background: var(--diesel-blue); color: white; outline: none;
+            font-size: 0.9rem; font-family: 'Cairo';
+        }
+
+        .mode-toggle { display: flex; gap: 5px; margin-bottom: 10px; }
+        .mode-btn { 
+            flex: 1; padding: 8px; font-size: 0.7rem; border-radius: 8px; 
+            border: 1px solid rgba(212, 175, 55, 0.3); background: var(--diesel-blue); 
+            color: var(--text-white); cursor: pointer; font-family: 'Cairo';
+        }
+        .mode-btn.active { background: var(--gold-primary); color: var(--diesel-blue); border-color: var(--gold-primary); }
+
+        .upload-wrapper {
+            background: var(--diesel-blue); border: 1.5px dashed var(--gold-primary);
+            padding: 15px; border-radius: 10px; text-align: center; cursor: pointer;
+            transition: 0.3s;
+        }
+        .upload-wrapper:hover { background: rgba(212, 175, 55, 0.05); }
+        .upload-wrapper i { font-size: 1.5rem; color: var(--gold-primary); margin-bottom: 5px; }
+        #p_img_preview { max-width: 100px; border-radius: 8px; display: none; margin: 10px auto; border: 1px solid var(--gold-primary); }
+
+        .submit-btn {
+            width: 100%; background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%);
+            color: var(--diesel-blue); border: none; padding: 14px; border-radius: 10px;
+            font-weight: 800; cursor: pointer; font-size: 1rem; margin-top: 5px;
+        }
+        .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        #msg { text-align:center; margin-top:10px; font-weight:700; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="tab-menu">
+        <button class="tab-btn active" onclick="openTab(event, 'add-tab')">
+            <i class="fas fa-plus-circle"></i><span>إضافة</span>
+        </button>
+        <button class="tab-btn" onclick="openTab(event, 'inventory-tab')">
+            <i class="fas fa-boxes"></i><span>المخزن</span>
+        </button>
+        <button class="tab-btn" onclick="openTab(event, 'orders-tab')">
+            <i class="fas fa-list-check"></i><span>الطلبات</span>
+        </button>
+        <button class="tab-btn" onclick="window.location.href='requests.html'">
+            <i class="fas fa-calculator" style="color:var(--gold-primary)"></i><span style="color:var(--gold-primary)">الجرد الفعلي</span>
+        </button>
+    </div>
+
+    <div id="add-tab" class="tab-content active">
+        <div class="admin-card">
+            <h2><i class="fas fa-plus"></i> منتج جديد</h2>
+            <form id="adminApiForm">
+                <div class="input-group"><label>الاسم</label><input type="text" id="p_name" required></div>
+                
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                    <div class="input-group"><label>السعر (د.ع)</label><input type="number" id="p_price" required></div>
+                    <div class="input-group"><label>الكمية</label><input type="number" id="p_qty" required></div>
+                </div>
+
+                <div class="input-group">
+                    <label>التصنيف</label>
+                    <select id="p_type_select" onchange="checkNewType(this.value)">
+                        <option value="">-- اختر --</option>
+                        <option value="NEW" style="color:var(--gold-primary)">+ تصنيف جديد</option>
+                    </select>
+                </div>
+                <div id="new_type_container" class="input-group" style="display:none;">
+                    <label>اسم التصنيف الجديد</label>
+                    <input type="text" id="p_new_type">
+                </div>
+
+                <div class="input-group">
+                    <label>صورة المنتج</label>
+                    <div class="mode-toggle">
+                        <button type="button" id="btn-up" class="mode-btn active" onclick="switchImgMode('upload')">رفع ملف</button>
+                        <button type="button" id="btn-link" class="mode-btn" onclick="switchImgMode('link')">لصق رابط</button>
+                    </div>
+
+                    <div id="up-area">
+                        <div class="upload-wrapper" onclick="document.getElementById('fileInput').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <div id="uploadStatus">اضغط لرفع صورة</div>
+                            <img id="p_img_preview">
+                        </div>
+                        <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFileUpload(this)">
+                    </div>
+
+                    <div id="link-area" style="display: none;">
+                        <input type="url" id="p_img_manual" placeholder="إلصق رابط الصورة هنا..." oninput="syncLink(this.value)">
+                    </div>
+
+                    <input type="hidden" id="p_img">
+                </div>
+
+                <button type="submit" id="submitBtn" class="submit-btn">حفظ المنتج</button>
+            </form>
+            <div id="msg"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const inventorySheetID = '12XnQD1ne4fu7Q56v-RVzFVMFDCY4p18C22pzyBsBoeg';
+    const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSd_m0-myPMPCQzZJNrT8ip4mi-D0oVTh6o_mX2b9NSlz7RIIg/formResponse";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzn_hvmN_lDoKrZ5PQgLjbLiffTStJ2VK7WV_Del6XSdqyq-ELXtVKiP6HDpnQBvMwhuw/exec";
+
+    function switchImgMode(mode) {
+        document.getElementById('up-area').style.display = (mode === 'upload') ? 'block' : 'none';
+        document.getElementById('link-area').style.display = (mode === 'link') ? 'block' : 'none';
+        document.getElementById('btn-up').classList.toggle('active', mode === 'upload');
+        document.getElementById('btn-link').classList.toggle('active', mode === 'link');
+        
+        // Reset hidden value when switching to prevent confusion
+        document.getElementById('p_img').value = "";
+        document.getElementById('p_img_preview').style.display = "none";
+        document.getElementById('p_img_manual').value = "";
+    }
+
+    // Capture Manual Links
+    function syncLink(val) { document.getElementById('p_img').value = val; }
+
+    // File Upload Handler (Captures Drive link into p_img)
+    async function handleFileUpload(input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        const status = document.getElementById('uploadStatus');
+        const preview = document.getElementById('p_img_preview');
+        const hiddenImgInput = document.getElementById('p_img');
+        const submitBtn = document.getElementById('submitBtn');
+
+        status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الرفع...';
+        submitBtn.disabled = true;
+
+        const reader = new FileReader();
+        reader.onload = async () => {
+            const base64 = reader.result.split(',')[1];
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ base64: base64, mimeType: file.type, fileName: file.name })
+                });
+                const data = await response.json();
+                if (data.status === "success") {
+                    status.innerText = "✅ تم الرفع بنجاح";
+                    preview.src = data.fileUrl;
+                    preview.style.display = "block";
+                    hiddenImgInput.value = data.fileUrl; // <--- CRITICAL FIX: Link captured here
+                } else { status.innerText = "❌ خطأ في الرفع"; }
+            } catch (err) { status.innerText = "❌ فشل الاتصال بالسيرفر"; }
+            finally { submitBtn.disabled = false; }
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function checkNewType(val) { document.getElementById('new_type_container').style.display = (val === 'NEW') ? 'block' : 'none'; }
+
+    function openTab(evt, tabName) {
+        let contents = document.getElementsByClassName("tab-content");
+        for (let i = 0; i < contents.length; i++) contents[i].style.display = "none";
+        let btns = document.getElementsByClassName("tab-btn");
+        for (let i = 0; i < btns.length; i++) btns[i].className = btns[i].className.replace(" active", "");
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+    }
+
+    async function loadCategories() {
+        try {
+            const res = await fetch(`https://docs.google.com/spreadsheets/d/${inventorySheetID}/gviz/tq?tqx=out:json`);
+            const text = await res.text();
+            const json = JSON.parse(text.substring(text.indexOf("(") + 1, text.lastIndexOf(")")));
+            const categories = [...new Set(json.table.rows.map(r => r.c[4]?.v).filter(v => v && v !== "Type"))];
+            const select = document.getElementById('p_type_select');
+            select.innerHTML = '<option value="">-- اختر --</option><option value="NEW" style="color:var(--gold-primary)">+ تصنيف جديد</option>';
+            categories.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = opt.innerText = cat;
+                select.appendChild(opt);
+            });
+        } catch (e) { console.error("Category load error"); }
+    }
+
+    document.getElementById('adminApiForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        const msg = document.getElementById('msg');
+
+        // Validation: Ensure image link is present
+        const imgLink = document.getElementById('p_img').value;
+        if(!imgLink) {
+            msg.style.color = "#e74c3c";
+            msg.innerText = "⚠️ يرجى رفع صورة أو لصق رابط أولاً!";
+            return;
+        }
+
+        btn.disabled = true; 
+        msg.style.color = "var(--text-white)";
+        msg.innerText = "⏳ جاري إرسال البيانات للمخزن...";
+
+        let finalType = document.getElementById('p_type_select').value;
+        if(finalType === 'NEW') finalType = document.getElementById('p_new_type').value;
+
+        const formData = new URLSearchParams();
+        formData.append("entry.1904055406", document.getElementById('p_name').value);
+        formData.append("entry.372117537",  document.getElementById('p_price').value);
+        formData.append("entry.663866375",  document.getElementById('p_qty').value);
+        formData.append("entry.307919813",  finalType);
+        formData.append("entry.174446568",  imgLink); // Sends the link to Column F
+
+        try {
+            await fetch(formURL, { method: "POST", mode: "no-cors", body: formData });
+            msg.style.color = "var(--gold-primary)"; 
+            msg.innerText = "✅ تم إضافة المنتج بنجاح!";
+            document.getElementById('adminApiForm').reset();
+            document.getElementById('p_img').value = "";
+            document.getElementById('p_img_preview').style.display = "none";
+            document.getElementById('uploadStatus').innerText = "اضغط لرفع صورة";
+            loadCategories();
+        } catch (error) { 
+            msg.style.color = "#e74c3c";
+            msg.innerText = "❌ حدث خطأ في الشبكة."; 
+        } finally { 
+            btn.disabled = false; 
+        }
+    });
+
+    loadCategories();
+</script>
+</body>
+</html>
