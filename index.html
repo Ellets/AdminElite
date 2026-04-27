@@ -71,6 +71,7 @@
             font-size: 0.9rem; font-family: 'Cairo';
         }
 
+        /* Image Mode Toggle Styling */
         .mode-toggle { display: flex; gap: 5px; margin-bottom: 10px; }
         .mode-btn { 
             flex: 1; padding: 8px; font-size: 0.7rem; border-radius: 8px; 
@@ -86,16 +87,15 @@
         }
         .upload-wrapper:hover { background: rgba(212, 175, 55, 0.05); }
         .upload-wrapper i { font-size: 1.5rem; color: var(--gold-primary); margin-bottom: 5px; }
-        #p_img_preview { max-width: 100px; border-radius: 8px; display: none; margin: 10px auto; border: 1px solid var(--gold-primary); }
+        #p_img_preview { max-width: 100px; border-radius: 8px; display: none; margin: 10px auto; }
 
         .submit-btn {
             width: 100%; background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%);
             color: var(--diesel-blue); border: none; padding: 14px; border-radius: 10px;
             font-weight: 800; cursor: pointer; font-size: 1rem; margin-top: 5px;
         }
-        .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        #msg { text-align:center; margin-top:10px; font-weight:700; font-size: 0.85rem; }
+        #msg { text-align:center; margin-top:10px; font-weight:700; }
     </style>
 </head>
 <body>
@@ -111,8 +111,15 @@
         <button class="tab-btn" onclick="openTab(event, 'orders-tab')">
             <i class="fas fa-list-check"></i><span>الطلبات</span>
         </button>
+        
         <button class="tab-btn" onclick="window.location.href='requests.html'">
-            <i class="fas fa-calculator" style="color:var(--gold-primary)"></i><span style="color:var(--gold-primary)">الجرد الفعلي</span>
+            <i class="fas fa-calculator" style="color:var(--gold-primary)"></i>
+            <span style="color:var(--gold-primary)">الجرد الفعلي</span>
+        </button>
+
+        <button class="tab-btn" onclick="window.open('https://ellets.github.io/Ellites/', '_blank')" style="background: rgba(212, 175, 55, 0.05); border-left: 1px solid rgba(212, 175, 55, 0.2);">
+            <i class="fas fa-external-link-alt" style="color:var(--gold-glow)"></i>
+            <span style="color:var(--gold-glow)">عرض المتجر</span>
         </button>
     </div>
 
@@ -149,7 +156,7 @@
                     <div id="up-area">
                         <div class="upload-wrapper" onclick="document.getElementById('fileInput').click()">
                             <i class="fas fa-cloud-upload-alt"></i>
-                            <div id="uploadStatus">اضغط لرفع صورة</div>
+                            <div id="uploadStatus" style="font-size:0.8rem">اضغط لرفع صورة</div>
                             <img id="p_img_preview">
                         </div>
                         <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFileUpload(this)">
@@ -167,6 +174,14 @@
             <div id="msg"></div>
         </div>
     </div>
+
+    <div id="inventory-tab" class="tab-content">
+        <div class="admin-card"><h2><i class="fas fa-boxes"></i> المخزن الحالي</h2><div id="inventory-list">جاري التحميل...</div></div>
+    </div>
+
+    <div id="orders-tab" class="tab-content">
+        <div class="admin-card"><h2><i class="fas fa-list-check"></i> طلبات الزبائن</h2><div id="orders-list">جاري التحميل...</div></div>
+    </div>
 </div>
 
 <script>
@@ -174,28 +189,25 @@
     const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSd_m0-myPMPCQzZJNrT8ip4mi-D0oVTh6o_mX2b9NSlz7RIIg/formResponse";
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzn_hvmN_lDoKrZ5PQgLjbLiffTStJ2VK7WV_Del6XSdqyq-ELXtVKiP6HDpnQBvMwhuw/exec";
 
+    // Image Mode Logic
     function switchImgMode(mode) {
         document.getElementById('up-area').style.display = (mode === 'upload') ? 'block' : 'none';
         document.getElementById('link-area').style.display = (mode === 'link') ? 'block' : 'none';
         document.getElementById('btn-up').classList.toggle('active', mode === 'upload');
         document.getElementById('btn-link').classList.toggle('active', mode === 'link');
-        
-        // Reset hidden value when switching to prevent confusion
-        document.getElementById('p_img').value = "";
-        document.getElementById('p_img_preview').style.display = "none";
-        document.getElementById('p_img_manual').value = "";
+        // We no longer clear p_img_manual here so the uploaded link stays visible if you switch tabs
     }
 
-    // Capture Manual Links
     function syncLink(val) { document.getElementById('p_img').value = val; }
 
-    // File Upload Handler (Captures Drive link into p_img)
+    // File Upload Handler
     async function handleFileUpload(input) {
         const file = input.files[0];
         if (!file) return;
 
         const status = document.getElementById('uploadStatus');
         const preview = document.getElementById('p_img_preview');
+        const manualInput = document.getElementById('p_img_manual');
         const hiddenImgInput = document.getElementById('p_img');
         const submitBtn = document.getElementById('submitBtn');
 
@@ -215,9 +227,13 @@
                     status.innerText = "✅ تم الرفع بنجاح";
                     preview.src = data.fileUrl;
                     preview.style.display = "block";
-                    hiddenImgInput.value = data.fileUrl; // <--- CRITICAL FIX: Link captured here
+                    
+                    // Update both the manual input and the hidden field
+                    manualInput.value = data.fileUrl;
+                    hiddenImgInput.value = data.fileUrl;
+                    
                 } else { status.innerText = "❌ خطأ في الرفع"; }
-            } catch (err) { status.innerText = "❌ فشل الاتصال بالسيرفر"; }
+            } catch (err) { status.innerText = "❌ فشل الاتصال"; }
             finally { submitBtn.disabled = false; }
         };
         reader.readAsDataURL(file);
@@ -254,18 +270,7 @@
         e.preventDefault();
         const btn = document.getElementById('submitBtn');
         const msg = document.getElementById('msg');
-
-        // Validation: Ensure image link is present
-        const imgLink = document.getElementById('p_img').value;
-        if(!imgLink) {
-            msg.style.color = "#e74c3c";
-            msg.innerText = "⚠️ يرجى رفع صورة أو لصق رابط أولاً!";
-            return;
-        }
-
-        btn.disabled = true; 
-        msg.style.color = "var(--text-white)";
-        msg.innerText = "⏳ جاري إرسال البيانات للمخزن...";
+        btn.disabled = true; msg.innerText = "جاري الحفظ...";
 
         let finalType = document.getElementById('p_type_select').value;
         if(finalType === 'NEW') finalType = document.getElementById('p_new_type').value;
@@ -275,23 +280,17 @@
         formData.append("entry.372117537",  document.getElementById('p_price').value);
         formData.append("entry.663866375",  document.getElementById('p_qty').value);
         formData.append("entry.307919813",  finalType);
-        formData.append("entry.174446568",  imgLink); // Sends the link to Column F
+        formData.append("entry.174446568",  document.getElementById('p_img').value);
 
         try {
             await fetch(formURL, { method: "POST", mode: "no-cors", body: formData });
-            msg.style.color = "var(--gold-primary)"; 
-            msg.innerText = "✅ تم إضافة المنتج بنجاح!";
+            msg.style.color = "var(--gold-primary)"; msg.innerText = "تم الحفظ بنجاح! ✓";
             document.getElementById('adminApiForm').reset();
-            document.getElementById('p_img').value = "";
             document.getElementById('p_img_preview').style.display = "none";
             document.getElementById('uploadStatus').innerText = "اضغط لرفع صورة";
             loadCategories();
-        } catch (error) { 
-            msg.style.color = "#e74c3c";
-            msg.innerText = "❌ حدث خطأ في الشبكة."; 
-        } finally { 
-            btn.disabled = false; 
-        }
+        } catch (error) { msg.innerText = "حدث خطأ"; }
+        finally { btn.disabled = false; }
     });
 
     loadCategories();
