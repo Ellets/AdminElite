@@ -195,7 +195,7 @@
         document.getElementById('link-area').style.display = (mode === 'link') ? 'block' : 'none';
         document.getElementById('btn-up').classList.toggle('active', mode === 'upload');
         document.getElementById('btn-link').classList.toggle('active', mode === 'link');
-        // We no longer clear p_img_manual here so the uploaded link stays visible if you switch tabs
+        if(mode === 'upload') document.getElementById('p_img_manual').value = "";
     }
 
     function syncLink(val) { document.getElementById('p_img').value = val; }
@@ -207,7 +207,6 @@
 
         const status = document.getElementById('uploadStatus');
         const preview = document.getElementById('p_img_preview');
-        const manualInput = document.getElementById('p_img_manual');
         const hiddenImgInput = document.getElementById('p_img');
         const submitBtn = document.getElementById('submitBtn');
 
@@ -227,11 +226,7 @@
                     status.innerText = "✅ تم الرفع بنجاح";
                     preview.src = data.fileUrl;
                     preview.style.display = "block";
-                    
-                    // Update both the manual input and the hidden field
-                    manualInput.value = data.fileUrl;
                     hiddenImgInput.value = data.fileUrl;
-                    
                 } else { status.innerText = "❌ خطأ في الرفع"; }
             } catch (err) { status.innerText = "❌ فشل الاتصال"; }
             finally { submitBtn.disabled = false; }
