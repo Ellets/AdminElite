@@ -1,115 +1,79 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Admin | رفع الصور</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <title>Drive Uploader</title>
     <style>
-        :root {
-            --diesel-blue: #131e2b;
-            --diesel-light: #1e2d3e;
-            --gold-primary: #d4af37;
-            --gold-glow: #f9e29c;
-            --bg-deep: #0b1118;
-            --text-white: #f4f4f4;
-        }
-        body {
-            font-family: 'Cairo', sans-serif;
-            background-color: var(--bg-deep);
-            background-image: radial-gradient(circle at center, #162436 0%, #0b1118 100%);
-            margin: 0; padding: 20px; color: var(--text-white);
-            display: flex; justify-content: center; align-items: center; min-height: 100vh;
-        }
-        .upload-card {
-            background: var(--diesel-light);
-            padding: 30px; border-radius: 22px;
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            box-shadow: 0 12px 40px rgba(0,0,0,0.5);
-            max-width: 400px; width: 100%; text-align: center;
-        }
-        .preview-box {
-            width: 100%; height: 200px;
-            background: var(--diesel-blue);
-            border: 2px dashed rgba(212, 175, 55, 0.3);
-            border-radius: 15px; margin: 20px 0;
-            display: flex; align-items: center; justify-content: center;
-            overflow: hidden;
-        }
-        .preview-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
-        .file-input { display: none; }
-        .custom-file-upload {
-            background: rgba(212, 175, 55, 0.1);
-            color: var(--gold-primary);
-            border: 1px solid var(--gold-primary);
-            padding: 12px 20px; border-radius: 10px;
-            cursor: pointer; font-weight: 700; display: inline-block; transition: 0.3s;
-        }
-        .custom-file-upload:hover { background: var(--gold-primary); color: var(--diesel-blue); }
-        .url-output {
-            background: var(--diesel-blue);
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 10px; border-radius: 8px;
-            font-size: 0.8rem; width: 100%; margin-top: 15px;
-            color: var(--gold-glow); word-break: break-all;
-            display: none; cursor: pointer;
-        }
-        .back-btn {
-            display: block; margin-top: 20px; color: #a0aec0;
-            text-decoration: none; font-size: 0.8rem;
-        }
+        body { font-family: sans-serif; padding: 20px; text-align: center; }
+        #linkContainer { margin-top: 20px; display: none; padding: 15px; background: #e7f3ff; border-radius: 8px; }
+        input { margin: 10px 0; }
     </style>
 </head>
 <body>
 
-<div class="upload-card">
-    <h2 style="color:var(--gold-primary); margin:0;"><i class="fas fa-cloud-upload-alt"></i> رفع صورة المنتج</h2>
-    <p style="font-size:0.8rem; color:#a0aec0;">اختر صورة لتحويلها إلى رابط</p>
-    
-    <div class="preview-box" id="previewBox">
-        <i class="fas fa-image" style="font-size: 3rem; color: rgba(255,255,255,0.1)"></i>
+    <h2>Upload to Shared Folder</h2>
+    <input type="file" id="fileInput" accept="image/*">
+    <br>
+    <button id="uploadBtn">Upload & Copy Link</button>
+
+    <div id="status"></div>
+
+    <div id="linkContainer">
+        <p>File Uploaded Successfully!</p>
+        <input type="text" id="shareLink" readonly style="width: 80%;">
+        <button onclick="copyLink()">Copy</button>
     </div>
 
-    <label class="custom-file-upload">
-        <input type="file" class="file-input" id="fileInput" accept="image/*">
-        اختر ملف
-    </label>
+    <script>
+        const WEB_APP_URL = "YOUR_DEPLOYED_URL_HERE"; // Paste your Web App URL here
 
-    <div id="urlOutput" class="url-output" onclick="copyUrl()"></div>
-    <p id="copyMsg" style="font-size:0.7rem; color:var(--status-good); display:none; margin-top:5px;">تم النسخ!</p>
+        document.getElementById('uploadBtn').onclick = async () => {
+            const fileInput = document.getElementById('fileInput');
+            const status = document.getElementById('status');
+            const linkContainer = document.getElementById('linkContainer');
+            
+            if (!fileInput.files[0]) return alert("Select a file!");
 
-    <a href="index.html" class="back-btn"><i class="fas fa-arrow-right"></i> العودة للوحة التحكم</a>
-</div>
-
-<script>
-    const fileInput = document.getElementById('fileInput');
-    const previewBox = document.getElementById('previewBox');
-    const urlOutput = document.getElementById('urlOutput');
-
-    fileInput.onchange = function() {
-        const file = this.files[0];
-        if (file) {
+            status.innerText = "Uploading...";
+            
+            const file = fileInput.files[0];
             const reader = new FileReader();
-            reader.onload = function(e) {
-                const base64 = e.target.result;
-                previewBox.innerHTML = `<img src="${base64}">`;
-                urlOutput.innerText = base64;
-                urlOutput.style.display = 'block';
-            }
+
+            reader.onload = async (e) => {
+                const base64 = e.target.result.split(',')[1];
+                
+                try {
+                    const response = await fetch(WEB_APP_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            base64: base64,
+                            mimeType: file.type,
+                            fileName: file.name
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.status === "success") {
+                        status.innerText = "";
+                        linkContainer.style.display = "block";
+                        document.getElementById('shareLink').value = result.fileUrl;
+                    } else {
+                        status.innerText = "Error: " + result.message;
+                    }
+                } catch (err) {
+                    status.innerText = "Error: Check Console";
+                    console.error(err);
+                }
+            };
             reader.readAsDataURL(file);
+        };
+
+        function copyLink() {
+            const copyText = document.getElementById("shareLink");
+            copyText.select();
+            document.execCommand("copy");
+            alert("Link copied to clipboard!");
         }
-    };
-
-    function copyUrl() {
-        const text = urlOutput.innerText;
-        navigator.clipboard.writeText(text).then(() => {
-            const msg = document.getElementById('copyMsg');
-            msg.style.display = 'block';
-            setTimeout(() => msg.style.display = 'none', 2000);
-        });
-    }
-</script>
-
+    </script>
 </body>
 </html>
