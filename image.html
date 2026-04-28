@@ -1,79 +1,87 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Drive Uploader</title>
-    <style>
-        body { font-family: sans-serif; padding: 20px; text-align: center; }
-        #linkContainer { margin-top: 20px; display: none; padding: 15px; background: #e7f3ff; border-radius: 8px; }
-        input { margin: 10px 0; }
-    </style>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f0f2f5; }
+    .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 380px; }
+    
+    /* Loading Spinner */
+    .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; display: none; margin: 20px auto; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    
+    #resultArea { margin-top: 20px; display: none; background: #f8fff9; border: 1px solid #d4edda; padding: 15px; border-radius: 8px; }
+    input[type="file"] { margin: 20px 0; display: block; width: 100%; }
+    button { background: #3498db; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; width: 100%; }
+    button:disabled { background: #ccc; cursor: not-allowed; }
+    input[type="text"] { width: 100%; padding: 8px; margin-top: 10px; border: 1px solid #ddd; border-radius: 4px; }
+  </style>
 </head>
 <body>
 
-    <h2>Upload to Shared Folder</h2>
-    <input type="file" id="fileInput" accept="image/*">
-    <br>
-    <button id="uploadBtn">Upload & Copy Link</button>
+<div class="card">
+  <h2 style="margin-top:0">Upload to Drive</h2>
+  <p style="color: #666; font-size: 14px;">Select a file to get its shareable link</p>
+  
+  <input type="file" id="fileInput">
+  <button id="uploadBtn" onclick="startUpload()">Upload Now</button>
+  
+  <div id="loader" class="loader"></div>
+  <p id="statusMsg" style="font-weight: 500;"></p>
 
-    <div id="status"></div>
+  <div id="resultArea">
+    <span id="fileNameLabel" style="font-size: 12px; color: #555;"></span>
+    <input type="text" id="linkBox" readonly>
+    <button onclick="copyToClipboard()" style="background: #27ae60; margin-top: 10px; padding: 8px;">Copy Link</button>
+  </div>
+</div>
 
-    <div id="linkContainer">
-        <p>File Uploaded Successfully!</p>
-        <input type="text" id="shareLink" readonly style="width: 80%;">
-        <button onclick="copyLink()">Copy</button>
-    </div>
+<script>
+  function startUpload() {
+    const fileInput = document.getElementById('fileInput');
+    const file = fileInput.files[0];
+    if (!file) return alert("Select a file first!");
 
-    <script>
-        const WEB_APP_URL = "YOUR_DEPLOYED_URL_HERE"; // Paste your Web App URL here
+    // Show loading state
+    document.getElementById('uploadBtn').disabled = true;
+    document.getElementById('loader').style.display = "block";
+    document.getElementById('statusMsg').innerText = "Processing upload...";
+    document.getElementById('resultArea').style.display = "none";
 
-        document.getElementById('uploadBtn').onclick = async () => {
-            const fileInput = document.getElementById('fileInput');
-            const status = document.getElementById('status');
-            const linkContainer = document.getElementById('linkContainer');
-            
-            if (!fileInput.files[0]) return alert("Select a file!");
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const payload = {
+        base64: e.target.result.split(',')[1],
+        mimeType: file.type,
+        fileName: file.name
+      };
 
-            status.innerText = "Uploading...";
-            
-            const file = fileInput.files[0];
-            const reader = new FileReader();
+      // Calls the function in Code.gs
+      google.script.run
+        .withSuccessHandler(response => {
+          document.getElementById('loader').style.display = "none";
+          document.getElementById('uploadBtn').disabled = false;
 
-            reader.onload = async (e) => {
-                const base64 = e.target.result.split(',')[1];
-                
-                try {
-                    const response = await fetch(WEB_APP_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            base64: base64,
-                            mimeType: file.type,
-                            fileName: file.name
-                        })
-                    });
+          if(response.status === "success") {
+            document.getElementById('statusMsg').innerText = "Upload Successful!";
+            document.getElementById('resultArea').style.display = "block";
+            document.getElementById('linkBox').value = response.url;
+            document.getElementById('fileNameLabel').innerText = "File: " + response.name;
+          } else {
+            document.getElementById('statusMsg').innerText = "Error: " + response.message;
+          }
+        })
+        .processUpload(payload);
+    };
+    reader.readAsDataURL(file);
+  }
 
-                    const result = await response.json();
+  function copyToClipboard() {
+    const linkBox = document.getElementById('linkBox');
+    linkBox.select();
+    document.execCommand('copy');
+    alert("Link copied to clipboard!");
+  }
+</script>
 
-                    if (result.status === "success") {
-                        status.innerText = "";
-                        linkContainer.style.display = "block";
-                        document.getElementById('shareLink').value = result.fileUrl;
-                    } else {
-                        status.innerText = "Error: " + result.message;
-                    }
-                } catch (err) {
-                    status.innerText = "Error: Check Console";
-                    console.error(err);
-                }
-            };
-            reader.readAsDataURL(file);
-        };
-
-        function copyLink() {
-            const copyText = document.getElementById("shareLink");
-            copyText.select();
-            document.execCommand("copy");
-            alert("Link copied to clipboard!");
-        }
-    </script>
 </body>
 </html>
