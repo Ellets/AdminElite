@@ -197,6 +197,30 @@
 
     function syncLink(val) { document.getElementById('p_img').value = val; }
 
+    // ✅ NEW: resize/compress image before upload
+    function resizeImage(file, maxWidth = 800, quality = 0.7) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            const reader = new FileReader();
+
+            reader.onload = e => { img.src = e.target.result; };
+
+            img.onload = () => {
+                const canvas = document.createElement("canvas");
+                const scale = Math.min(maxWidth / img.width, 1);
+                canvas.width = img.width * scale;
+                canvas.height = img.height * scale;
+
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                resolve(canvas.toDataURL("image/jpeg", quality));
+            };
+
+            reader.readAsDataURL(file);
+        });
+    }
+
     async function handleFileUpload(input) {
         const file = input.files[0];
         if (!file) return;
@@ -207,39 +231,64 @@
         const hiddenImgInput = document.getElementById('p_img');
         const submitBtn = document.getElementById('submitBtn');
 
+        // ✅ NEW: file type validation
+        if (!file.type.startsWith("image/")) {
+            status.innerText = "❌ الملف ليس صورة";
+            return;
+        }
+
+        // ✅ NEW: file size limit (2MB)
+        if (file.size > 2 * 1024 * 1024) {
+            status.innerText = "❌ الصورة كبيرة (حد أقصى 2MB)";
+            return;
+        }
+
         status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الرفع...';
         submitBtn.disabled = true;
 
-        const reader = new FileReader();
-        reader.onload = async () => {
-            const base64 = reader.result.split(',')[1];
+        try {
+            // ✅ NEW: compress image before upload
+            const resizedDataUrl = await resizeImage(file);
+            const base64 = resizedDataUrl.split(',')[1];
+
+            const response = await fetch(SCRIPT_URL, {
+                method: "POST",
+                body: JSON.stringify({ base64: base64, mimeType: "image/jpeg", fileName: file.name })
+            });
+
+            // ✅ NEW: safer JSON parsing
+            let data;
             try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify({ base64: base64, mimeType: file.type, fileName: file.name })
-                });
-                const data = await response.json();
-                
-                // Note: Ensure your Google Script returns 'fileUrl' as the key
-                if (data.status === "success") {
-                    status.innerText = "✅ تم الرفع بنجاح";
-                    preview.src = data.fileUrl;
-                    preview.style.display = "block";
-                    
-                    // 1. Fill the manual link box so you can copy it
-                    manualInput.value = data.fileUrl;
-                    
-                    // 2. Fill the hidden input for the form
-                    hiddenImgInput.value = data.fileUrl;
-                    
-                    // 3. Switch to the link view so the text is visible to copy
-                    switchImgMode('link');
-                    
-                } else { status.innerText = "❌ خطأ في الرفع"; }
-            } catch (err) { status.innerText = "❌ فشل الاتصال"; }
-            finally { submitBtn.disabled = false; }
-        };
-        reader.readAsDataURL(file);
+                data = await response.json();
+            } catch {
+                throw new Error("Invalid server response");
+            }
+
+            if (data.status === "success") {
+                status.innerText = "✅ تم الرفع بنجاح";
+                preview.src = data.fileUrl;
+                preview.style.display = "block";
+
+                manualInput.value = data.fileUrl;
+                hiddenImgInput.value = data.fileUrl;
+
+                // ✅ NEW: auto-copy link (optional UX boost)
+                try {
+                    await navigator.clipboard.writeText(data.fileUrl);
+                } catch {}
+
+                // ❌ REMOVED: forced UI switch (kept your UX stable)
+                // switchImgMode('link');
+
+            } else {
+                status.innerText = "❌ خطأ في الرفع";
+            }
+
+        } catch (err) {
+            status.innerText = "❌ فشل الاتصال";
+        } finally {
+            submitBtn.disabled = false;
+        }
     }
 
     function checkNewType(val) { document.getElementById('new_type_container').style.display = (val === 'NEW') ? 'block' : 'none'; }
