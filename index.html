@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Admin Pro | لوحة التحكم</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --diesel-blue: #131e2b; --diesel-light: #1e2d3e;
+            --gold-primary: #d4af37; --gold-glow: #f9e29c;
+            --bg-deep: #0b1118; --text-white: #f4f4f4;
+            --status-good: #2ecc71;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Cairo', sans-serif; background-color: var(--bg-deep);
+            background-image: radial-gradient(circle at center, #162436 0%, #0b1118 100%);
+            margin: 0; padding: 10px; color: var(--text-white); min-height: 100vh;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .tab-menu { display: flex; gap: 6px; margin-bottom: 20px; background: var(--diesel-light); padding: 6px; border-radius: 18px; border: 1px solid rgba(212, 175, 55, 0.15); }
+        .tab-btn { flex: 1; padding: 12px 2px; border: none; border-radius: 12px; background: transparent; color: var(--text-white); font-family: 'Cairo'; font-weight: 700; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.75rem; }
+        .tab-btn.active { background: var(--gold-primary); color: var(--diesel-blue); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .admin-card { background: var(--diesel-light); padding: 18px; border-radius: 22px; border: 1px solid rgba(212, 175, 55, 0.12); box-shadow: 0 12px 30px rgba(0,0,0,0.4); }
+        .input-group { margin-bottom: 12px; }
+        label { display: block; margin-bottom: 5px; font-size: 0.75rem; color: #a0aec0; }
+        input, select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06); background: var(--diesel-blue); color: white; font-family: 'Cairo'; }
+        .submit-btn { width: 100%; background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%); color: var(--diesel-blue); border: none; padding: 14px; border-radius: 10px; font-weight: 800; cursor: pointer; margin-top: 5px; }
+        .upload-row { display: flex; gap: 8px; }
+        .mini-btn { background: var(--diesel-blue); color: var(--gold-primary); border: 1px solid var(--gold-primary); padding: 0 15px; border-radius: 10px; cursor: pointer; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; }
+        th { font-size: 0.7rem; color: var(--gold-primary); padding: 10px; border-bottom: 2px solid rgba(212, 175, 55, 0.1); text-align: right; }
+        td { padding: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.03); font-size: 0.8rem; }
+        .p-img-mini { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="tab-menu">
+        <button class="tab-btn active" onclick="openTab(event, 'add-tab')"><i class="fas fa-plus-circle"></i><span>إضافة</span></button>
+        <button class="tab-btn" onclick="openTab(event, 'inventory-tab')"><i class="fas fa-boxes"></i><span>المخزن</span></button>
+        <button class="tab-btn" onclick="openTab(event, 'orders-tab')"><i class="fas fa-list-check"></i><span>الطلبات</span></button>
+    </div>
+
+    <div id="add-tab" class="tab-content active">
+        <div class="admin-card">
+            <h2><i class="fas fa-plus"></i> منتج جديد</h2>
+            <form id="adminApiForm">
+                <div class="input-group"><label>الاسم</label><input type="text" id="p_name" required></div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                    <div class="input-group"><label>السعر (د.ع)</label><input type="number" id="p_price" required></div>
+                    <div class="input-group"><label>الكمية</label><input type="number" id="p_qty" required></div>
+                </div>
+                <div class="input-group">
+                    <label>رابط الصورة</label>
+                    <div class="upload-row">
+                        <input type="url" id="p_img" placeholder="ضع الرابط هنا أو ارفع صورة">
+                        <button type="button" class="mini-btn" onclick="window.open('image.html', 'upload', 'width=400,height=500')"><i class="fas fa-upload"></i></button>
+                    </div>
+                </div>
+                <button type="submit" id="submitBtn" class="submit-btn">حفظ المنتج</button>
+            </form>
+            <div id="msg" style="text-align:center; margin-top:10px;"></div>
+        </div>
+    </div>
+
+    <div id="inventory-tab" class="tab-content">
+        <div class="admin-card">
+            <tbody id="inventory-body"></tbody>
+        </div>
+    </div>
+</div>
+
+<script>
+    const inventorySheetID = '12XnQD1ne4fu7Q56v-RVzFVMFDCY4p18C22pzyBsBoeg';
+    const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSd_m0-myPMPCQzZJNrT8ip4mi-D0oVTh6o_mX2b9NSlz7RIIg/formResponse";
+
+    function openTab(evt, tabName) {
+        let contents = document.getElementsByClassName("tab-content");
+        for (let i = 0; i < contents.length; i++) contents[i].style.display = "none";
+        let btns = document.getElementsByClassName("tab-btn");
+        for (let i = 0; i < btns.length; i++) btns[i].classList.remove("active");
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.classList.add("active");
+    }
+
+    document.getElementById('adminApiForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        const msg = document.getElementById('msg');
+        btn.disabled = true; msg.innerText = "جاري الحفظ...";
+
+        const formData = new URLSearchParams();
+        formData.append("entry.1904055406", document.getElementById('p_name').value);
+        formData.append("entry.372117537",  document.getElementById('p_price').value);
+        formData.append("entry.663866375",  document.getElementById('p_qty').value);
+        formData.append("entry.174446568",  document.getElementById('p_img').value);
+
+        try {
+            await fetch(formURL, { method: "POST", mode: "no-cors", body: formData });
+            msg.innerText = "تم الحفظ بنجاح! ✓";
+            document.getElementById('adminApiForm').reset();
+        } catch (error) { msg.innerText = "حدث خطأ"; }
+        finally { btn.disabled = false; }
+    });
+</script>
+</body>
+</html>
