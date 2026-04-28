@@ -71,7 +71,6 @@
             font-size: 0.9rem; font-family: 'Cairo';
         }
 
-        /* Image Mode Toggle Styling */
         .mode-toggle { display: flex; gap: 5px; margin-bottom: 10px; }
         .mode-btn { 
             flex: 1; padding: 8px; font-size: 0.7rem; border-radius: 8px; 
@@ -187,7 +186,6 @@
 <script>
     const inventorySheetID = '12XnQD1ne4fu7Q56v-RVzFVMFDCY4p18C22pzyBsBoeg';
     const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSd_m0-myPMPCQzZJNrT8ip4mi-D0oVTh6o_mX2b9NSlz7RIIg/formResponse";
-    // Replace this URL after deploying the Google Apps Script in Step 2
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzn_hvmN_lDoKrZ5PQgLjbLiffTStJ2VK7WV_Del6XSdqyq-ELXtVKiP6HDpnQBvMwhuw/exec";
 
     function switchImgMode(mode) {
@@ -221,13 +219,21 @@
                     body: JSON.stringify({ base64: base64, mimeType: file.type, fileName: file.name })
                 });
                 const data = await response.json();
+                
+                // Note: Ensure your Google Script returns 'fileUrl' as the key
                 if (data.status === "success") {
                     status.innerText = "✅ تم الرفع بنجاح";
                     preview.src = data.fileUrl;
                     preview.style.display = "block";
                     
+                    // 1. Fill the manual link box so you can copy it
                     manualInput.value = data.fileUrl;
+                    
+                    // 2. Fill the hidden input for the form
                     hiddenImgInput.value = data.fileUrl;
+                    
+                    // 3. Switch to the link view so the text is visible to copy
+                    switchImgMode('link');
                     
                 } else { status.innerText = "❌ خطأ في الرفع"; }
             } catch (err) { status.innerText = "❌ فشل الاتصال"; }
