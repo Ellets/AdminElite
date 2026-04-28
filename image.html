@@ -2,50 +2,47 @@
 <html>
 <head>
   <style>
-    body { font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f0f2f5; }
-    .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 380px; }
-    
-    /* Loading Spinner */
-    .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; display: none; margin: 20px auto; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    
-    #resultArea { margin-top: 20px; display: none; background: #f8fff9; border: 1px solid #d4edda; padding: 15px; border-radius: 8px; }
-    input[type="file"] { margin: 20px 0; display: block; width: 100%; }
-    button { background: #3498db; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; width: 100%; }
-    button:disabled { background: #ccc; cursor: not-allowed; }
-    input[type="text"] { width: 100%; padding: 8px; margin-top: 10px; border: 1px solid #ddd; border-radius: 4px; }
+    body { font-family: sans-serif; display: flex; justify-content: center; padding-top: 50px; background: #fdfdfd; }
+    .container { width: 400px; padding: 20px; border: 1px solid #ccc; border-radius: 8px; background: #fff; }
+    .step { margin-bottom: 20px; padding: 15px; border-left: 5px solid #ddd; }
+    .active { border-left-color: #3498db; background: #f0f7ff; }
+    .completed { border-left-color: #27ae60; background: #f2fff5; }
+    button { width: 100%; padding: 10px; margin-top: 10px; cursor: pointer; }
+    #fetchArea, #resultArea { display: none; }
   </style>
 </head>
 <body>
 
-<div class="card">
-  <h2 style="margin-top:0">Upload to Drive</h2>
-  <p style="color: #666; font-size: 14px;">Select a file to get its shareable link</p>
-  
-  <input type="file" id="fileInput">
-  <button id="uploadBtn" onclick="startUpload()">Upload Now</button>
-  
-  <div id="loader" class="loader"></div>
-  <p id="statusMsg" style="font-weight: 500;"></p>
-
-  <div id="resultArea">
-    <span id="fileNameLabel" style="font-size: 12px; color: #555;"></span>
-    <input type="text" id="linkBox" readonly>
-    <button onclick="copyToClipboard()" style="background: #27ae60; margin-top: 10px; padding: 8px;">Copy Link</button>
+<div class="container">
+  <div id="step1" class="step active">
+    <strong>Step 1: Upload Image</strong>
+    <input type="file" id="fileInput" style="display:block; margin:10px 0;">
+    <button id="upBtn" onclick="handleUpload()">Upload to Drive</button>
   </div>
+
+  <div id="step2" class="step">
+    <strong>Step 2: Fetch Data</strong>
+    <p id="targetName" style="font-size:12px; color:#666;"></p>
+    <button id="fetchBtn" onclick="handleFetch()">Retrieve Link from Drive</button>
+  </div>
+
+  <div id="resultArea" class="step completed">
+    <strong>Link Found!</strong>
+    <input type="text" id="finalLink" readonly style="width:100%; margin-top:10px;">
+  </div>
+  
+  <p id="msg" style="text-align:center; font-size:13px; color:blue;"></p>
 </div>
 
 <script>
-  function startUpload() {
-    const fileInput = document.getElementById('fileInput');
-    const file = fileInput.files[0];
-    if (!file) return alert("Select a file first!");
+  let lastUploadedName = "";
 
-    // Show loading state
-    document.getElementById('uploadBtn').disabled = true;
-    document.getElementById('loader').style.display = "block";
-    document.getElementById('statusMsg').innerText = "Processing upload...";
-    document.getElementById('resultArea').style.display = "none";
+  function handleUpload() {
+    const file = document.getElementById('fileInput').files[0];
+    if (!file) return alert("Select file!");
+
+    document.getElementById('msg').innerText = "Uploading...";
+    document.getElementById('upBtn').disabled = true;
 
     const reader = new FileReader();
     reader.onload = function(e) {
@@ -55,31 +52,38 @@
         fileName: file.name
       };
 
-      // Calls the function in Code.gs
       google.script.run
-        .withSuccessHandler(response => {
-          document.getElementById('loader').style.display = "none";
-          document.getElementById('uploadBtn').disabled = false;
-
-          if(response.status === "success") {
-            document.getElementById('statusMsg').innerText = "Upload Successful!";
-            document.getElementById('resultArea').style.display = "block";
-            document.getElementById('linkBox').value = response.url;
-            document.getElementById('fileNameLabel').innerText = "File: " + response.name;
-          } else {
-            document.getElementById('statusMsg').innerText = "Error: " + response.message;
+        .withSuccessHandler(res => {
+          if(res.status === "success") {
+            lastUploadedName = res.fileName;
+            document.getElementById('msg').innerText = "Upload finished!";
+            document.getElementById('step1').className = "step completed";
+            document.getElementById('step2').className = "step active";
+            document.getElementById('step2').style.display = "block";
+            document.getElementById('targetName').innerText = "Target: " + lastUploadedName;
           }
         })
-        .processUpload(payload);
+        .uploadOnly(payload);
     };
     reader.readAsDataURL(file);
   }
 
-  function copyToClipboard() {
-    const linkBox = document.getElementById('linkBox');
-    linkBox.select();
-    document.execCommand('copy');
-    alert("Link copied to clipboard!");
+  function handleFetch() {
+    document.getElementById('msg').innerText = "Searching Drive folder...";
+    document.getElementById('fetchBtn').disabled = true;
+
+    google.script.run
+      .withSuccessHandler(res => {
+        document.getElementById('fetchBtn').disabled = false;
+        if(res.status === "success") {
+          document.getElementById('msg').innerText = "Link retrieved!";
+          document.getElementById('resultArea').style.display = "block";
+          document.getElementById('finalLink').value = res.url;
+        } else {
+          alert(res.message);
+        }
+      })
+      .fetchFileLink(lastUploadedName);
   }
 </script>
 
