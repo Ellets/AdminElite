@@ -2,80 +2,51 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>رفع الصور</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;800&display=swap" rel="stylesheet">
+    <title>مركز الرفع</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Cairo', sans-serif; background: #131e2b; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
-        .upload-card { background: #1e2d3e; padding: 30px; border-radius: 20px; border: 1px solid #d4af37; width: 90%; }
-        input[type="file"] { margin: 20px 0; color: #a0aec0; }
-        .btn { background: #d4af37; color: #131e2b; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 10px; }
-        #preview { width: 100px; height: 100px; border-radius: 10px; object-fit: cover; margin-top: 15px; display: none; border: 2px solid #d4af37; }
-        #status { font-size: 0.8rem; margin-top: 10px; }
+        body { font-family: 'Cairo', sans-serif; background: #0b1118; color: white; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .box { background: #1e2d3e; padding: 20px; border-radius: 15px; border: 1px solid #d4af37; text-align: center; width: 80%; }
+        input { margin: 15px 0; }
+        .btn { background: #d4af37; color: #131e2b; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
+        #status { margin-top: 10px; font-size: 0.8rem; color: #d4af37; }
     </style>
 </head>
 <body>
+    <div class="box">
+        <h3>رفع صورة المنتج</h3>
+        <input type="file" id="imgInput" accept="image/*">
+        <button class="btn" id="upBtn">رفع واستخدام</button>
+        <div id="status"></div>
+    </div>
 
-<div class="upload-card">
-    <h3>مركز رفع الصور</h3>
-    <input type="file" id="fileInput" accept="image/*">
-    <button class="btn" id="uploadBtn">رفع الآن</button>
-    
-    <img id="preview">
-    <div id="status"></div>
-    <button class="btn" id="copyBtn" style="display:none; background: #2ecc71;">نسخ الرابط وإغلاق</button>
-</div>
+    <script>
+        // Replace with your API key from https://api.imgbb.com/
+        const KEY = 'YOUR_IMGBB_API_KEY'; 
 
-<script>
-    // Replace 'YOUR_API_KEY' with your actual key from https://api.imgbb.com/
-    const API_KEY = 'YOUR_IMGBB_API_KEY_HERE'; 
-    let generatedUrl = '';
+        document.getElementById('upBtn').onclick = async () => {
+            const file = document.getElementById('imgInput').files[0];
+            const status = document.getElementById('status');
+            if(!file) return alert("اختر صورة أولاً");
 
-    document.getElementById('uploadBtn').onclick = async () => {
-        const fileInput = document.getElementById('fileInput');
-        const status = document.getElementById('status');
-        const uploadBtn = document.getElementById('uploadBtn');
+            status.innerText = "جاري الرفع...";
+            const formData = new FormData();
+            formData.append("image", file);
 
-        if (!fileInput.files[0]) return alert("يرجى اختيار صورة");
-
-        uploadBtn.disabled = true;
-        status.innerText = "جاري الرفع...";
-
-        const formData = new FormData();
-        formData.append("image", fileInput.files[0]);
-
-        try {
-            const res = await fetch(`https://api.imgbb.com/1/upload?key=${API_KEY}`, {
-                method: "POST",
-                body: formData
-            });
-            const data = await res.json();
-            
-            if (data.success) {
-                generatedUrl = data.data.url;
-                document.getElementById('preview').src = generatedUrl;
-                document.getElementById('preview').style.display = 'inline-block';
-                document.getElementById('copyBtn').style.display = 'block';
-                status.innerText = "تم الرفع بنجاح!";
-            }
-        } catch (err) {
-            status.innerText = "فشل الرفع!";
-        } finally {
-            uploadBtn.disabled = false;
-        }
-    };
-
-    document.getElementById('copyBtn').onclick = () => {
-        // Try to send URL back to parent window (index.html)
-        if (window.opener && !window.opener.closed) {
-            window.opener.document.getElementById('p_img').value = generatedUrl;
-            window.close();
-        } else {
-            // Fallback: Copy to clipboard if window not opened as popup
-            navigator.clipboard.writeText(generatedUrl);
-            alert("تم نسخ الرابط: " + generatedUrl);
-        }
-    };
-</script>
-
+            try {
+                const res = await fetch(`https://api.imgbb.com/1/upload?key=${KEY}`, { method: "POST", body: formData });
+                const data = await res.json();
+                if(data.success) {
+                    const url = data.data.url;
+                    if(window.opener) {
+                        window.opener.document.getElementById('p_img').value = url;
+                        window.close();
+                    } else {
+                        status.innerText = "تم الرفع: " + url;
+                    }
+                }
+            } catch(e) { status.innerText = "فشل الرفع"; }
+        };
+    </script>
 </body>
 </html>
