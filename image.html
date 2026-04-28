@@ -1,91 +1,63 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <style>
-    body { font-family: sans-serif; display: flex; justify-content: center; padding-top: 50px; background: #fdfdfd; }
-    .container { width: 400px; padding: 20px; border: 1px solid #ccc; border-radius: 8px; background: #fff; }
-    .step { margin-bottom: 20px; padding: 15px; border-left: 5px solid #ddd; }
-    .active { border-left-color: #3498db; background: #f0f7ff; }
-    .completed { border-left-color: #27ae60; background: #f2fff5; }
-    button { width: 100%; padding: 10px; margin-top: 10px; cursor: pointer; }
-    #fetchArea, #resultArea { display: none; }
-  </style>
-</head>
-<body>
+// PASTE YOUR GOOGLE DEPLOYMENT URL HERE
+const SCRIPT_URL = "YOUR_NEW_DEPLOY_URL_HERE"; 
 
-<div class="container">
-  <div id="step1" class="step active">
-    <strong>Step 1: Upload Image</strong>
-    <input type="file" id="fileInput" style="display:block; margin:10px 0;">
-    <button id="upBtn" onclick="handleUpload()">Upload to Drive</button>
-  </div>
+async function doUpload() {
+  const fileInput = document.getElementById('fileInput');
+  const file = fileInput.files[0];
+  if (!file) return alert("Please select a file.");
 
-  <div id="step2" class="step">
-    <strong>Step 2: Fetch Data</strong>
-    <p id="targetName" style="font-size:12px; color:#666;"></p>
-    <button id="fetchBtn" onclick="handleFetch()">Retrieve Link from Drive</button>
-  </div>
+  const status = document.getElementById('status');
+  status.innerText = "Step 1: Uploading... please wait.";
 
-  <div id="resultArea" class="step completed">
-    <strong>Link Found!</strong>
-    <input type="text" id="finalLink" readonly style="width:100%; margin-top:10px;">
-  </div>
-  
-  <p id="msg" style="text-align:center; font-size:13px; color:blue;"></p>
-</div>
-
-<script>
-  let lastUploadedName = "";
-
-  function handleUpload() {
-    const file = document.getElementById('fileInput').files[0];
-    if (!file) return alert("Select file!");
-
-    document.getElementById('msg').innerText = "Uploading...";
-    document.getElementById('upBtn').disabled = true;
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const payload = {
-        base64: e.target.result.split(',')[1],
-        mimeType: file.type,
-        fileName: file.name
-      };
-
-      google.script.run
-        .withSuccessHandler(res => {
-          if(res.status === "success") {
-            lastUploadedName = res.fileName;
-            document.getElementById('msg').innerText = "Upload finished!";
-            document.getElementById('step1').className = "step completed";
-            document.getElementById('step2').className = "step active";
-            document.getElementById('step2').style.display = "block";
-            document.getElementById('targetName').innerText = "Target: " + lastUploadedName;
-          }
-        })
-        .uploadOnly(payload);
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    const payload = {
+      action: 'upload',
+      base64: e.target.result.split(',')[1],
+      mimeType: file.type,
+      fileName: file.name
     };
-    reader.readAsDataURL(file);
+
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
+      const result = await res.json();
+      if(result.status === "success") {
+        status.innerText = "Upload Complete! Ready to Fetch.";
+        document.getElementById('nameInput').value = file.name;
+      }
+    } catch (err) {
+      status.innerText = "Upload Error. Check Console.";
+      console.error(err);
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+async function doFetch() {
+  const name = document.getElementById('nameInput').value;
+  const status = document.getElementById('status');
+  if (!name) return alert("Enter a filename to fetch.");
+
+  status.innerText = "Step 2: Fetching link...";
+
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify({ action: 'fetch', fileName: name })
+    });
+    const result = await res.json();
+    
+    if(result.status === "success") {
+      status.innerText = "Link Found!";
+      document.getElementById('outputLink').value = result.url;
+    } else {
+      status.innerText = "File not found in Drive.";
+    }
+  } catch (err) {
+    status.innerText = "Fetch Error.";
+    console.error(err);
   }
-
-  function handleFetch() {
-    document.getElementById('msg').innerText = "Searching Drive folder...";
-    document.getElementById('fetchBtn').disabled = true;
-
-    google.script.run
-      .withSuccessHandler(res => {
-        document.getElementById('fetchBtn').disabled = false;
-        if(res.status === "success") {
-          document.getElementById('msg').innerText = "Link retrieved!";
-          document.getElementById('resultArea').style.display = "block";
-          document.getElementById('finalLink').value = res.url;
-        } else {
-          alert(res.message);
-        }
-      })
-      .fetchFileLink(lastUploadedName);
-  }
-</script>
-
-</body>
-</html>
+}
