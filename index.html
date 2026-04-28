@@ -71,6 +71,7 @@
             font-size: 0.9rem; font-family: 'Cairo';
         }
 
+        /* Image Mode Toggle Styling */
         .mode-toggle { display: flex; gap: 5px; margin-bottom: 10px; }
         .mode-btn { 
             flex: 1; padding: 8px; font-size: 0.7rem; border-radius: 8px; 
@@ -82,8 +83,10 @@
         .upload-wrapper {
             background: var(--diesel-blue); border: 1.5px dashed var(--gold-primary);
             padding: 15px; border-radius: 10px; text-align: center; cursor: pointer;
+            transition: 0.3s;
         }
-
+        .upload-wrapper:hover { background: rgba(212, 175, 55, 0.05); }
+        .upload-wrapper i { font-size: 1.5rem; color: var(--gold-primary); margin-bottom: 5px; }
         #p_img_preview { max-width: 100px; border-radius: 8px; display: none; margin: 10px auto; }
 
         .submit-btn {
@@ -95,98 +98,202 @@
         #msg { text-align:center; margin-top:10px; font-weight:700; }
     </style>
 </head>
-
 <body>
 
 <div class="container">
-<div id="add-tab" class="tab-content active">
-<div class="admin-card">
+    <div class="tab-menu">
+        <button class="tab-btn active" onclick="openTab(event, 'add-tab')">
+            <i class="fas fa-plus-circle"></i><span>إضافة</span>
+        </button>
+        <button class="tab-btn" onclick="openTab(event, 'inventory-tab')">
+            <i class="fas fa-boxes"></i><span>المخزن</span>
+        </button>
+        <button class="tab-btn" onclick="openTab(event, 'orders-tab')">
+            <i class="fas fa-list-check"></i><span>الطلبات</span>
+        </button>
+        
+        <button class="tab-btn" onclick="window.location.href='requests.html'">
+            <i class="fas fa-calculator" style="color:var(--gold-primary)"></i>
+            <span style="color:var(--gold-primary)">الجرد الفعلي</span>
+        </button>
 
-<form id="adminApiForm">
+        <button class="tab-btn" onclick="window.open('https://ellets.github.io/Ellites/', '_blank')" style="background: rgba(212, 175, 55, 0.05); border-left: 1px solid rgba(212, 175, 55, 0.2);">
+            <i class="fas fa-external-link-alt" style="color:var(--gold-glow)"></i>
+            <span style="color:var(--gold-glow)">عرض المتجر</span>
+        </button>
+    </div>
 
-<div class="input-group">
-<label>صورة المنتج</label>
+    <div id="add-tab" class="tab-content active">
+        <div class="admin-card">
+            <h2><i class="fas fa-plus"></i> منتج جديد</h2>
+            <form id="adminApiForm">
+                <div class="input-group"><label>الاسم</label><input type="text" id="p_name" required></div>
+                
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                    <div class="input-group"><label>السعر (د.ع)</label><input type="number" id="p_price" required></div>
+                    <div class="input-group"><label>الكمية</label><input type="number" id="p_qty" required></div>
+                </div>
 
-<div class="mode-toggle">
-<button type="button" id="btn-up" class="mode-btn active" onclick="switchImgMode('upload')">رفع ملف</button>
-<button type="button" id="btn-link" class="mode-btn" onclick="switchImgMode('link')">لصق رابط</button>
+                <div class="input-group">
+                    <label>التصنيف</label>
+                    <select id="p_type_select" onchange="checkNewType(this.value)">
+                        <option value="">-- اختر --</option>
+                        <option value="NEW" style="color:var(--gold-primary)">+ تصنيف جديد</option>
+                    </select>
+                </div>
+                <div id="new_type_container" class="input-group" style="display:none;">
+                    <label>اسم التصنيف الجديد</label>
+                    <input type="text" id="p_new_type">
+                </div>
+
+                <div class="input-group">
+                    <label>صورة المنتج</label>
+                    <div class="mode-toggle">
+                        <button type="button" id="btn-up" class="mode-btn active" onclick="switchImgMode('upload')">رفع ملف</button>
+                        <button type="button" id="btn-link" class="mode-btn" onclick="switchImgMode('link')">لصق رابط</button>
+                    </div>
+
+                    <div id="up-area">
+                        <div class="upload-wrapper" onclick="document.getElementById('fileInput').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <div id="uploadStatus" style="font-size:0.8rem">اضغط لرفع صورة</div>
+                            <img id="p_img_preview">
+                        </div>
+                        <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFileUpload(this)">
+                    </div>
+
+                    <div id="link-area" style="display: none;">
+                        <input type="url" id="p_img_manual" placeholder="إلصق رابط الصورة هنا..." oninput="syncLink(this.value)">
+                    </div>
+
+                    <input type="hidden" id="p_img">
+                </div>
+
+                <button type="submit" id="submitBtn" class="submit-btn">حفظ المنتج</button>
+            </form>
+            <div id="msg"></div>
+        </div>
+    </div>
+
+    <div id="inventory-tab" class="tab-content">
+        <div class="admin-card"><h2><i class="fas fa-boxes"></i> المخزن الحالي</h2><div id="inventory-list">جاري التحميل...</div></div>
+    </div>
+
+    <div id="orders-tab" class="tab-content">
+        <div class="admin-card"><h2><i class="fas fa-list-check"></i> طلبات الزبائن</h2><div id="orders-list">جاري التحميل...</div></div>
+    </div>
 </div>
 
-<div id="up-area">
-<div class="upload-wrapper" onclick="document.getElementById('fileInput').click()">
-<i class="fas fa-cloud-upload-alt"></i>
-<div id="uploadStatus">اضغط لرفع صورة</div>
-<img id="p_img_preview">
-</div>
+<script>
+    const inventorySheetID = '12XnQD1ne4fu7Q56v-RVzFVMFDCY4p18C22pzyBsBoeg';
+    const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSd_m0-myPMPCQzZJNrT8ip4mi-D0oVTh6o_mX2b9NSlz7RIIg/formResponse";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzn_hvmN_lDoKrZ5PQgLjbLiffTStJ2VK7WV_Del6XSdqyq-ELXtVKiP6HDpnQBvMwhuw/exec";
 
-<input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFileUpload(this)">
+    // Image Mode Logic
+    function switchImgMode(mode) {
+        document.getElementById('up-area').style.display = (mode === 'upload') ? 'block' : 'none';
+        document.getElementById('link-area').style.display = (mode === 'link') ? 'block' : 'none';
+        document.getElementById('btn-up').classList.toggle('active', mode === 'upload');
+        document.getElementById('btn-link').classList.toggle('active', mode === 'link');
+        // We no longer clear p_img_manual here so the uploaded link stays visible if you switch tabs
+    }
 
-<!-- ✅ NEW: link display -->
-<div id="uploadedLinkBox" style="display:none; margin-top:8px; text-align:center;">
-<a id="uploadedLink" href="#" target="_blank" style="color:var(--gold-primary); font-size:0.8rem; word-break:break-all;">
-رابط الصورة
-</a>
-</div>
+    function syncLink(val) { document.getElementById('p_img').value = val; }
 
-</div>
+    // File Upload Handler
+    async function handleFileUpload(input) {
+        const file = input.files[0];
+        if (!file) return;
 
-<div id="link-area" style="display:none;">
-<input type="url" id="p_img_manual" oninput="syncLink(this.value)">
-</div>
+        const status = document.getElementById('uploadStatus');
+        const preview = document.getElementById('p_img_preview');
+        const manualInput = document.getElementById('p_img_manual');
+        const hiddenImgInput = document.getElementById('p_img');
+        const submitBtn = document.getElementById('submitBtn');
 
-<input type="hidden" id="p_img">
-</div>
+        status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الرفع...';
+        submitBtn.disabled = true;
 
-<button type="submit" id="submitBtn" class="submit-btn">حفظ المنتج</button>
-</form>
+        const reader = new FileReader();
+        reader.onload = async () => {
+            const base64 = reader.result.split(',')[1];
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ base64: base64, mimeType: file.type, fileName: file.name })
+                });
+                const data = await response.json();
+                if (data.status === "success") {
+                    status.innerText = "✅ تم الرفع بنجاح";
+                    preview.src = data.fileUrl;
+                    preview.style.display = "block";
+                    
+                    // Update both the manual input and the hidden field
+                    manualInput.value = data.fileUrl;
+                    hiddenImgInput.value = data.fileUrl;
+                    
+                } else { status.innerText = "❌ خطأ في الرفع"; }
+            } catch (err) { status.innerText = "❌ فشل الاتصال"; }
+            finally { submitBtn.disabled = false; }
+        };
+        reader.readAsDataURL(file);
+    }
 
-<div id="msg"></div>
+    function checkNewType(val) { document.getElementById('new_type_container').style.display = (val === 'NEW') ? 'block' : 'none'; }
 
-</div>
-</div>
-</div>
+    function openTab(evt, tabName) {
+        let contents = document.getElementsByClassName("tab-content");
+        for (let i = 0; i < contents.length; i++) contents[i].style.display = "none";
+        let btns = document.getElementsByClassName("tab-btn");
+        for (let i = 0; i < btns.length; i++) btns[i].className = btns[i].className.replace(" active", "");
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+    }
 
-function doPost(e) {
-  try {
-    const data = JSON.parse(e.postData.contents);
+    async function loadCategories() {
+        try {
+            const res = await fetch(`https://docs.google.com/spreadsheets/d/${inventorySheetID}/gviz/tq?tqx=out:json`);
+            const text = await res.text();
+            const json = JSON.parse(text.substring(text.indexOf("(") + 1, text.lastIndexOf(")")));
+            const categories = [...new Set(json.table.rows.map(r => r.c[4]?.v).filter(v => v && v !== "Type"))];
+            const select = document.getElementById('p_type_select');
+            select.innerHTML = '<option value="">-- اختر --</option><option value="NEW" style="color:var(--gold-primary)">+ تصنيف جديد</option>';
+            categories.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = opt.innerText = cat;
+                select.appendChild(opt);
+            });
+        } catch (e) { console.error("Category load error"); }
+    }
 
-    const base64 = data.base64;
-    const mimeType = data.mimeType || "image/jpeg";
-    const fileName = data.fileName || ("img_" + Date.now());
+    document.getElementById('adminApiForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        const msg = document.getElementById('msg');
+        btn.disabled = true; msg.innerText = "جاري الحفظ...";
 
-    // Convert base64 → blob
-    const blob = Utilities.newBlob(
-      Utilities.base64Decode(base64),
-      mimeType,
-      fileName
-    );
+        let finalType = document.getElementById('p_type_select').value;
+        if(finalType === 'NEW') finalType = document.getElementById('p_new_type').value;
 
-    // Save to Drive (you can change folder if you want)
-    const file = DriveApp.createFile(blob);
+        const formData = new URLSearchParams();
+        formData.append("entry.1904055406", document.getElementById('p_name').value);
+        formData.append("entry.372117537",  document.getElementById('p_price').value);
+        formData.append("entry.663866375",  document.getElementById('p_qty').value);
+        formData.append("entry.307919813",  finalType);
+        formData.append("entry.174446568",  document.getElementById('p_img').value);
 
-    // Make it public
-    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+        try {
+            await fetch(formURL, { method: "POST", mode: "no-cors", body: formData });
+            msg.style.color = "var(--gold-primary)"; msg.innerText = "تم الحفظ بنجاح! ✓";
+            document.getElementById('adminApiForm').reset();
+            document.getElementById('p_img_preview').style.display = "none";
+            document.getElementById('uploadStatus').innerText = "اضغط لرفع صورة";
+            loadCategories();
+        } catch (error) { msg.innerText = "حدث خطأ"; }
+        finally { btn.disabled = false; }
+    });
 
-    // ✅ DIRECT IMAGE LINK (important)
-    const fileId = file.getId();
-    const directUrl = "https://drive.google.com/uc?export=view&id=" + fileId;
-
-    return ContentService
-      .createTextOutput(JSON.stringify({
-        status: "success",
-        fileUrl: directUrl
-      }))
-      .setMimeType(ContentService.MimeType.JSON);
-
-  } catch (err) {
-    return ContentService
-      .createTextOutput(JSON.stringify({
-        status: "error",
-        message: err.toString()
-      }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}
-
+    loadCategories();
+</script>
 </body>
 </html>
