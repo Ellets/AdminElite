@@ -60,7 +60,14 @@
             position: relative;
         }
 
-        h2 { font-size: 1rem; font-weight: 800; margin: 0 0 15px 0; color: var(--gold-glow); display: flex; align-items: center; gap: 8px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        h2 { font-size: 1rem; font-weight: 800; margin: 0; color: var(--gold-glow); display: flex; align-items: center; gap: 8px; }
+
+        .sheet-edit-btn {
+            background: rgba(212, 175, 55, 0.08);
+            color: var(--gold-primary); border: 1px solid var(--gold-primary);
+            padding: 5px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: bold; text-decoration: none;
+        }
 
         .input-group { margin-bottom: 12px; }
         label { display: block; margin-bottom: 5px; font-size: 0.75rem; color: #a0aec0; }
@@ -71,15 +78,7 @@
             font-size: 0.9rem; font-family: 'Cairo';
         }
 
-        /* Image Mode Toggle Styling */
-        .mode-toggle { display: flex; gap: 5px; margin-bottom: 10px; }
-        .mode-btn { 
-            flex: 1; padding: 8px; font-size: 0.7rem; border-radius: 8px; 
-            border: 1px solid rgba(212, 175, 55, 0.3); background: var(--diesel-blue); 
-            color: var(--text-white); cursor: pointer; font-family: 'Cairo';
-        }
-        .mode-btn.active { background: var(--gold-primary); color: var(--diesel-blue); border-color: var(--gold-primary); }
-
+        /* Upload Styling */
         .upload-wrapper {
             background: var(--diesel-blue); border: 1.5px dashed var(--gold-primary);
             padding: 15px; border-radius: 10px; text-align: center; cursor: pointer;
@@ -95,13 +94,25 @@
             font-weight: 800; cursor: pointer; font-size: 1rem; margin-top: 5px;
         }
 
-        #msg { text-align:center; margin-top:10px; font-weight:700; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        th { font-size: 0.7rem; color: var(--gold-primary); padding: 10px 4px; text-align: right; border-bottom: 2px solid rgba(212, 175, 55, 0.1); }
+        td { padding: 10px 4px; border-bottom: 1px solid rgba(255, 255, 255, 0.03); vertical-align: middle; word-wrap: break-word; }
+
+        .p-info { display: flex; flex-direction: column; gap: 1px; }
+        .p-name { font-weight: 700; font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .p-img-mini { width: 40px; height: 40px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(212, 175, 55, 0.2); }
+        .badge { background: rgba(212, 175, 55, 0.1); color: var(--gold-glow); padding: 1px 5px; border-radius: 5px; font-size: 0.65rem; width: fit-content; }
+        
+        .order-total { color: var(--gold-primary); font-weight: 800; font-size: 0.85rem; }
+        .contact-actions { display: flex; gap: 12px; align-items: center; justify-content: flex-start; }
+        .contact-link { color: var(--gold-primary); font-size: 1.15rem; text-decoration: none; transition: 0.2s; }
+        .contact-link:active { transform: scale(1.2); }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="tab-menu">
+  <div class="tab-menu">
         <button class="tab-btn active" onclick="openTab(event, 'add-tab')">
             <i class="fas fa-plus-circle"></i><span>إضافة</span>
         </button>
@@ -128,12 +139,10 @@
             <h2><i class="fas fa-plus"></i> منتج جديد</h2>
             <form id="adminApiForm">
                 <div class="input-group"><label>الاسم</label><input type="text" id="p_name" required></div>
-                
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
                     <div class="input-group"><label>السعر (د.ع)</label><input type="number" id="p_price" required></div>
                     <div class="input-group"><label>الكمية</label><input type="number" id="p_qty" required></div>
                 </div>
-
                 <div class="input-group">
                     <label>التصنيف</label>
                     <select id="p_type_select" onchange="checkNewType(this.value)">
@@ -148,57 +157,28 @@
 
                 <div class="input-group">
                     <label>صورة المنتج</label>
-                    <div class="mode-toggle">
-                        <button type="button" id="btn-up" class="mode-btn active" onclick="switchImgMode('upload')">رفع ملف</button>
-                        <button type="button" id="btn-link" class="mode-btn" onclick="switchImgMode('link')">لصق رابط</button>
+                    <div class="upload-wrapper" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <div id="uploadStatus" style="font-size:0.8rem">اضغط لرفع صورة</div>
+                        <img id="p_img_preview">
                     </div>
-
-                    <div id="up-area">
-                        <div class="upload-wrapper" onclick="document.getElementById('fileInput').click()">
-                            <i class="fas fa-cloud-upload-alt"></i>
-                            <div id="uploadStatus" style="font-size:0.8rem">اضغط لرفع صورة</div>
-                            <img id="p_img_preview">
-                        </div>
-                        <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFileUpload(this)">
-                    </div>
-
-                    <div id="link-area" style="display: none;">
-                        <input type="url" id="p_img_manual" placeholder="إلصق رابط الصورة هنا..." oninput="syncLink(this.value)">
-                    </div>
-
+                    <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFileUpload(this)">
                     <input type="hidden" id="p_img">
                 </div>
 
                 <button type="submit" id="submitBtn" class="submit-btn">حفظ المنتج</button>
             </form>
-            <div id="msg"></div>
+            <div id="msg" style="text-align:center; margin-top:10px; font-weight:700;"></div>
         </div>
     </div>
 
-    <div id="inventory-tab" class="tab-content">
-        <div class="admin-card"><h2><i class="fas fa-boxes"></i> المخزن الحالي</h2><div id="inventory-list">جاري التحميل...</div></div>
     </div>
-
-    <div id="orders-tab" class="tab-content">
-        <div class="admin-card"><h2><i class="fas fa-list-check"></i> طلبات الزبائن</h2><div id="orders-list">جاري التحميل...</div></div>
-    </div>
-</div>
 
 <script>
     const inventorySheetID = '12XnQD1ne4fu7Q56v-RVzFVMFDCY4p18C22pzyBsBoeg';
+    const ordersSheetID = '1hCfKFp2-YvEl33FdU7gEJyzxRoSO3l9bPHCDMn58W9o';
     const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSd_m0-myPMPCQzZJNrT8ip4mi-D0oVTh6o_mX2b9NSlz7RIIg/formResponse";
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzn_hvmN_lDoKrZ5PQgLjbLiffTStJ2VK7WV_Del6XSdqyq-ELXtVKiP6HDpnQBvMwhuw/exec";
-
-    // Image Mode Logic
-    function switchImgMode(mode) {
-        document.getElementById('up-area').style.display = (mode === 'upload') ? 'block' : 'none';
-        document.getElementById('link-area').style.display = (mode === 'link') ? 'block' : 'none';
-        document.getElementById('btn-up').classList.toggle('active', mode === 'upload');
-        document.getElementById('btn-link').classList.toggle('active', mode === 'link');
-        if(mode === 'upload') document.getElementById('p_img_manual').value = "";
-    }
-
-    function syncLink(val) { document.getElementById('p_img').value = val; }
 
     // File Upload Handler
     async function handleFileUpload(input) {
@@ -216,25 +196,47 @@
         const reader = new FileReader();
         reader.onload = async () => {
             const base64 = reader.result.split(',')[1];
+            const payload = {
+                base64: base64,
+                mimeType: file.type,
+                fileName: file.name
+            };
+
             try {
                 const response = await fetch(SCRIPT_URL, {
                     method: "POST",
-                    body: JSON.stringify({ base64: base64, mimeType: file.type, fileName: file.name })
+                    body: JSON.stringify(payload)
                 });
                 const data = await response.json();
+
                 if (data.status === "success") {
                     status.innerText = "✅ تم الرفع بنجاح";
                     preview.src = data.fileUrl;
                     preview.style.display = "block";
-                    hiddenImgInput.value = data.fileUrl;
-                } else { status.innerText = "❌ خطأ في الرفع"; }
-            } catch (err) { status.innerText = "❌ فشل الاتصال"; }
-            finally { submitBtn.disabled = false; }
+                    hiddenImgInput.value = data.fileUrl; // Set the URL for the Google Form
+                } else {
+                    status.innerText = "❌ خطأ في الرفع";
+                }
+            } catch (err) {
+                status.innerText = "❌ فشل الاتصال";
+            } finally {
+                submitBtn.disabled = false;
+            }
         };
         reader.readAsDataURL(file);
     }
 
+    // Existing Functions
     function checkNewType(val) { document.getElementById('new_type_container').style.display = (val === 'NEW') ? 'block' : 'none'; }
+
+    function formatDriveUrl(url) {
+        if (!url) return 'https://via.placeholder.com/40';
+        if (url.includes('drive.google.com')) {
+            const fileId = url.match(/[-\w]{25,}/);
+            if (fileId) return `https://lh3.googleusercontent.com/d/${fileId[0]}`;
+        }
+        return url;
+    }
 
     function openTab(evt, tabName) {
         let contents = document.getElementsByClassName("tab-content");
@@ -243,23 +245,11 @@
         for (let i = 0; i < btns.length; i++) btns[i].className = btns[i].className.replace(" active", "");
         document.getElementById(tabName).style.display = "block";
         evt.currentTarget.className += " active";
+        if(tabName === 'inventory-tab') loadInventory();
+        if(tabName === 'orders-tab') loadOrders();
     }
 
-    async function loadCategories() {
-        try {
-            const res = await fetch(`https://docs.google.com/spreadsheets/d/${inventorySheetID}/gviz/tq?tqx=out:json`);
-            const text = await res.text();
-            const json = JSON.parse(text.substring(text.indexOf("(") + 1, text.lastIndexOf(")")));
-            const categories = [...new Set(json.table.rows.map(r => r.c[4]?.v).filter(v => v && v !== "Type"))];
-            const select = document.getElementById('p_type_select');
-            select.innerHTML = '<option value="">-- اختر --</option><option value="NEW" style="color:var(--gold-primary)">+ تصنيف جديد</option>';
-            categories.forEach(cat => {
-                const opt = document.createElement('option');
-                opt.value = opt.innerText = cat;
-                select.appendChild(opt);
-            });
-        } catch (e) { console.error("Category load error"); }
-    }
+    // ... (Your existing loadCategories, loadInventory, loadOrders functions go here) ...
 
     document.getElementById('adminApiForm').addEventListener('submit', async (e) => {
         e.preventDefault();
