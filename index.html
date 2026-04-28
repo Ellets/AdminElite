@@ -146,102 +146,47 @@
 </div>
 </div>
 
-<script>
-const SCRIPT_URL = "YOUR_SCRIPT";
+function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
 
-function switchImgMode(mode) {
-document.getElementById('up-area').style.display = (mode === 'upload') ? 'block' : 'none';
-document.getElementById('link-area').style.display = (mode === 'link') ? 'block' : 'none';
+    const base64 = data.base64;
+    const mimeType = data.mimeType || "image/jpeg";
+    const fileName = data.fileName || ("img_" + Date.now());
+
+    // Convert base64 → blob
+    const blob = Utilities.newBlob(
+      Utilities.base64Decode(base64),
+      mimeType,
+      fileName
+    );
+
+    // Save to Drive (you can change folder if you want)
+    const file = DriveApp.createFile(blob);
+
+    // Make it public
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+    // ✅ DIRECT IMAGE LINK (important)
+    const fileId = file.getId();
+    const directUrl = "https://drive.google.com/uc?export=view&id=" + fileId;
+
+    return ContentService
+      .createTextOutput(JSON.stringify({
+        status: "success",
+        fileUrl: directUrl
+      }))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch (err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({
+        status: "error",
+        message: err.toString()
+      }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
 }
-
-function syncLink(val) {
-document.getElementById('p_img').value = val;
-}
-
-// ✅ resize
-function resizeImage(file) {
-return new Promise(resolve=>{
-const img=new Image();
-const reader=new FileReader();
-reader.onload=e=>img.src=e.target.result;
-img.onload=()=>{
-const canvas=document.createElement("canvas");
-const scale=Math.min(800/img.width,1);
-canvas.width=img.width*scale;
-canvas.height=img.height*scale;
-canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);
-resolve(canvas.toDataURL("image/jpeg",0.7));
-};
-reader.readAsDataURL(file);
-});
-}
-
-async function handleFileUpload(input){
-const file=input.files[0];
-if(!file)return;
-
-const status=document.getElementById('uploadStatus');
-const preview=document.getElementById('p_img_preview');
-const hidden=document.getElementById('p_img');
-
-// ✅ validation
-if(!file.type.startsWith("image/")){
-status.innerText="❌ ليس صورة";
-return;
-}
-if(file.size>2*1024*1024){
-status.innerText="❌ الصورة كبيرة";
-return;
-}
-
-status.innerText="جاري الرفع...";
-
-try{
-const resized=await resizeImage(file);
-const base64=resized.split(',')[1];
-
-const res=await fetch(SCRIPT_URL,{
-method:"POST",
-body:JSON.stringify({base64})
-});
-
-let data;
-try{ data=await res.json(); }catch{ throw "bad"; }
-
-if(data.status==="success"){
-
-status.innerText="تم الرفع";
-
-preview.src=data.fileUrl;
-preview.style.display="block";
-hidden.value=data.fileUrl;
-
-// ✅ show link
-const linkBox=document.getElementById('uploadedLinkBox');
-const link=document.getElementById('uploadedLink');
-
-link.href=data.fileUrl;
-link.innerText=data.fileUrl;
-linkBox.style.display="block";
-
-// ✅ copy
-navigator.clipboard.writeText(data.fileUrl).catch(()=>{});
-
-}else{
-status.innerText="خطأ";
-}
-
-}catch{
-status.innerText="فشل الاتصال";
-}
-}
-
-// ✅ reset
-document.getElementById('adminApiForm').addEventListener('submit',()=>{
-document.getElementById('uploadedLinkBox').style.display="none";
-document.getElementById('uploadedLink').innerText="رابط الصورة";
-});
-</script>
 
 </body>
 </html>
