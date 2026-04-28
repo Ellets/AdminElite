@@ -145,6 +145,25 @@
                     <input type="text" id="p_new_type">
                 </div>
                 <div class="input-group"><label>رابط الصورة</label><input type="url" id="p_img"></div>
+
+
+
+
+                <div class="input-group">
+    <label>رابط الصورة</label>
+    <div style="display: flex; gap: 8px;">
+        <input type="url" id="p_img" placeholder="https://...">
+        <button type="button" onclick="window.open('image.html', '_blank')" 
+                style="width: 50px; background: var(--diesel-light); border: 1px solid var(--gold-primary); color: var(--gold-primary); border-radius: 10px; cursor: pointer;">
+            <i class="fas fa-upload"></i>
+        </button>
+    </div>
+</div>
+
+
+
+
+                
                 <button type="submit" id="submitBtn" class="submit-btn">حفظ المنتج</button>
             </form>
             <div id="msg" style="text-align:center; margin-top:10px; font-weight:700;"></div>
